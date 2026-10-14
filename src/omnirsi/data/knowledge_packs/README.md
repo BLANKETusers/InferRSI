@@ -6,7 +6,7 @@ experiment; repository conventions stay with their owning repository.
 
 | Tier / CLI value | Sources | Learning output |
 | --- | --- | --- |
-| Contribution / `contribution` | vLLM, vLLM-Omni, vllm-ascend; existing afd_plugin and vllm_rlt packs remain available | L2C blind attempt → comparison → scoped skill; separate performance evidence/candidates |
+| Contribution / `contribution` | vLLM, vLLM-Omni, vllm-ascend; legacy repository packs also retain imported Strata, SGLang and SGLang-Omni procedures | L2C blind attempt → comparison → scoped skill; separate performance evidence/candidates |
 | Dependency / `dependency` | FlashInfer, FlashAttention, PyTorch/Inductor, Triton, Diffusers, Transformers | API/capability constraints and downstream impact; no blind coding session required |
 | Peer technique / `peer` | SGLang, TensorRT-LLM, LMDeploy, xDiT, Cache-DiT | Technique, hardware, reported benefit, costs, quality risks and a reproduction hypothesis |
 
@@ -39,9 +39,17 @@ L2C integration. There are no learned L2C skills or vLLM/vllm-ascend performance
 records in this import. Existing imported vLLM-Omni guidance does not become
 L2C training output merely by receiving a tier.
 
-External knowledge packs do not register executable repository targets.
-`doctor`, `plan`, and `run` retain their existing repository choices. This PR
-adds no launcher, scheduler, new CI lane or GPU dependency.
+External knowledge packs do not register executable repository targets. The
+five-engine library separately provides repository descriptors for caller-supplied
+external commands; it adds no built-in launcher, scheduler, CI lane or GPU dependency.
+Learning-source choices and runtime repository descriptors remain separate registries.
+
+Legacy schema-v1 abstracts in `repo_packs/` retain their contribution-tier paths
+and IDs for compatibility, including the five-engine library. These imported
+procedures are not reviewed L2C outputs. A source can have records in more than
+one tier: SGLang's repository procedures remain here while its separately sourced
+HiCache transfer card belongs to `peer`. Tier filtering applies to each record;
+unfiltered retrieval returns both without duplicating IDs or inheriting validation.
 
 ## Retrieval
 

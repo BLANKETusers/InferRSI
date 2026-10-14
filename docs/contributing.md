@@ -36,6 +36,12 @@ Keep IDs stable, omit PR links, retain source attribution and negative results,
 and qualify new backends independently. See the
 [knowledge maintenance guide](../src/omnirsi/data/repo_packs/vllm_omni/knowledge/README.md#maintaining-the-pack).
 
+The [bilingual engine library](../src/omnirsi/data/skill_library/README.md) holds
+detailed source-grounded procedures. Catalog abstracts link to both editions via
+package-relative `skill_documents`; update the affected abstract and language
+pair together. Source snapshot revisions there identify research evidence, not
+campaign defaults. Include linked helper scripts and licenses in wheel checks.
+
 ## Acceptance checklist
 
 Open an issue using the [acceptance form](../.github/ISSUE_TEMPLATE/campaign-acceptance.yml)
