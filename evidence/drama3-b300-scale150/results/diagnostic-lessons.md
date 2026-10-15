@@ -6,7 +6,7 @@ quality repetitions are now complete. No candidate has passed the required
 all-concurrency performance and quality matrix, so no successful README example
 is added.
 
-The [published runtime evidence](https://github.com/david6666666/drama-3-single-b300-inference/tree/2669d4cc67f2c3db29f8c10167f26a447a877bdd/evidence/20261015-scale150)
+The [published runtime evidence](https://github.com/david6666666/drama-3-single-b300-inference/tree/3a06099072928f32d21aaafb1ac785734c12bfa1/evidence/20261015-scale150)
 retains the following useful failures and controls:
 
 - Compare actual batch sizes when attributing decode kernels. Mixed-batch
@@ -37,3 +37,25 @@ Complete quality from an individual feasible configuration is useful evidence,
 but it does not fill missing concurrency or repetition groups. The imported
 catalog guidance remains `locally_verified=false`; these observations do not
 automatically qualify another engine, revision, GPU or workload.
+
+The user confirmed that further optimization must retain native computation,
+all eight routed experts, and no additional lossy quantization. Historical
+precision-reduction trials remain rejected; frozen acceptance gates are intact.
+
+New fixed-request controls cover complete generated codes, model/codec state,
+PCM bytes, completion ordering and two generations of slot reuse. Decode/codec
+and prefill/codec concurrency both preserve the tested outputs exactly. Yet
+fresh asynchronous service trials fail complete WER in both the unchanged
+control and the fused-input candidate. These failures remain in the runtime
+evidence and the async configuration is not selected. Do not infer a CUDA race,
+a successful fix, or acceptable dynamic-service quality from those replay
+controls alone. No root cause has been established.
+
+Nonblocking CUDA events also show substantial existing codec/decode overlap.
+Exclude warmup using the raw request interval, distinguish submission from
+codec execution, and do not count overlapped time twice as an available gain.
+Event spans can contain submission gaps and do not measure SM utilization.
+
+The new native MoE input preparation preserves every FP8 activation byte,
+scale and router value, and complete B16/B64 replay state. This numerical result
+is separate from serving acceptance, which remains incomplete.

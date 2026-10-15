@@ -7,11 +7,11 @@
   "component": "audio",
   "scenario": "audio.*",
   "status": "imported",
-  "summary": "Diagnose audio service scaling by batch occupancy, mixed prefill and codec overlap; check state ownership and unchanged numerical controls, then qualify complete audio quality and service throughput.",
+  "summary": "Diagnose audio service scaling by batch occupancy, mixed prefill and codec overlap; check state ownership, unchanged numerical controls and fixed-request replay, then qualify complete audio quality and service throughput.",
   "translations": {
     "zh-CN": {
       "title": "音频并发扩展：混合预填充、状态归属和 codec 重叠",
-      "summary": "按实际批大小、混合预填充和 codec 重叠拆解音频并发扩展；先检查状态归属和未修改实现的数值对照，再验收完整音频质量与服务吞吐。"
+      "summary": "按实际批大小、混合预填充和 codec 重叠拆解音频并发扩展；检查状态归属、未修改实现的数值对照和固定请求重放，再验收完整音频质量与服务吞吐。"
     }
   },
   "tags": [
@@ -24,7 +24,8 @@
     "codec",
     "state_ownership",
     "control_run",
-    "layer_parity"
+    "layer_parity",
+    "fixed_request_replay"
   ],
   "sources": [
     {
@@ -62,6 +63,7 @@
   "validation_plan": [
     "L0: exercise partial batches, variable prompt boundaries, slot reuse, request cancellation and untouched-state checks before any service comparison.",
     "When batched and single-request outputs differ, preserve the failed comparison and run the unchanged implementation through the same check. Isolate each changed operator on identical layer inputs to separate new errors from accumulated floating-point and routing differences; never silently relax its numeric threshold.",
+    "For stream overlap, hold request ordering, initial model/codec state and sampling counters fixed; compare generated codes, PCM, completion order and reused-slot state. Exact fixed-request replay does not replace quality under dynamic service admission.",
     "L1/L2: replay heterogeneous real prompts; inspect routing occupancy and graph kernels, and distinguish summed kernel time from elapsed time when streams overlap.",
     "L3/L4: score every output in the frozen corpus and repeated concurrency sweep; report acoustic frames/s, first playable audio latency, RTF, errors, WER and speaker similarity. Preserve rejected runs and source/environment provenance."
   ],
@@ -70,6 +72,7 @@
     "A low-concurrency improvement does not imply high-concurrency improvement; reducing admission wait can also increase costly mixed steps.",
     "Changing state precision, codec precision or FP8 execution can affect generated samples. Operator parity alone does not establish end-to-end audio quality.",
     "A faster isolated operation can still regress service throughput. Recheck the unchanged serving configuration and complete audio quality before choosing a fused kernel or a different batch policy.",
+    "CUDA event spans can include host-submission gaps. Do not label their union as SM utilization, or count overlapped codec duration again as an available end-to-end speedup.",
     "Qualification of another engine or a different GPU requires its own acceptance issue and complete evidence."
   ],
   "verification": {
