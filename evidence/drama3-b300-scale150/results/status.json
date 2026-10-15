@@ -1,5 +1,14 @@
 {
   "verdict": "INCONCLUSIVE",
   "acceptance_issue": "https://github.com/ThinkFlowLab/OmniRSI/issues/10",
-  "reason": "No candidate has completed the frozen all-concurrency performance and quality gates."
+  "reason": "No candidate has completed the frozen all-concurrency performance and quality gates.",
+  "runtime_pull_request": "https://github.com/david6666666/drama-3-single-b300-inference/pull/1",
+  "runtime_evidence_commit": "2669d4cc67f2c3db29f8c10167f26a447a877bdd",
+  "runtime_evidence": "https://github.com/david6666666/drama-3-single-b300-inference/tree/2669d4cc67f2c3db29f8c10167f26a447a877bdd/evidence/20261015-scale150",
+  "baseline_quality_groups": 21,
+  "baseline_scored_waveforms": 22848,
+  "packed_layer_graph_ownership_checks": 5076,
+  "packed_feasibility_quality_samples": 1088,
+  "candidate_all_concurrency_repetitions_complete": false,
+  "readme_success_example_added": false
 }
