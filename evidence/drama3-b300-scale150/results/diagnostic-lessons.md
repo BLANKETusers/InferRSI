@@ -6,7 +6,7 @@ quality repetitions are now complete. No candidate has passed the required
 all-concurrency performance and quality matrix, so no successful README example
 is added.
 
-The [published runtime evidence](https://github.com/david6666666/drama-3-single-b300-inference/tree/3a06099072928f32d21aaafb1ac785734c12bfa1/evidence/20261015-scale150)
+The [published runtime evidence](https://github.com/david6666666/drama-3-single-b300-inference/tree/e58c8418005af8972d1616d5368009bc07dbe651/evidence/20261015-scale150)
 retains the following useful failures and controls:
 
 - Compare actual batch sizes when attributing decode kernels. Mixed-batch
@@ -59,3 +59,10 @@ Event spans can contain submission gaps and do not measure SM utilization.
 The new native MoE input preparation preserves every FP8 activation byte,
 scale and router value, and complete B16/B64 replay state. This numerical result
 is separate from serving acceptance, which remains incomplete.
+
+A separate native-fusion pair with synchronous codec subsequently completed on
+the frozen physical GPU0. All 1088 outputs in each arm meet the issue's quality
+bounds, but throughput still misses the updated baseline and acceptance target.
+This is one feasibility repetition, not a qualified all-concurrency result.
+The successful fixed-input fusion and this limited service observation do not
+promote the rejected asynchronous configuration or resolve its failure cause.
