@@ -88,3 +88,16 @@ def test_misclassified_external_card_is_rejected_before_retrieval(
     monkeypatch.setattr(catalog, "files", lambda _: tmp_path)
     with pytest.raises(ValueError, match="tier disagrees"):
         search_knowledge(tier="contribution")
+
+
+def test_legacy_engine_library_and_peer_cards_coexist_without_duplicate_choices():
+    assert len(catalog.KNOWLEDGE_REPOS) == len(set(catalog.KNOWLEDGE_REPOS))
+    contribution = search_knowledge(tier="contribution", repo="sglang", limit=100)
+    peer = search_knowledge(tier="peer", repo="sglang", limit=100)
+    assert len(contribution) == 3 and all("skill_documents" in r for r in contribution)
+    assert len(peer) == 1 and peer[0]["id"] == "sglang.cuda.llm.hierarchical_prefix_cache"
+    combined = search_knowledge(repo="sglang", limit=100)
+    assert {r["id"] for r in combined} == {r["id"] for r in contribution + peer}
+    for repo in ("strata", "sglang", "sglang_omni"):
+        assert repository_pack(repo)["execution_support"] == "caller_supplied_external_commands"
+        assert parser().parse_args(["doctor", "--repo-type", repo]).repo_type == repo

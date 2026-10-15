@@ -55,6 +55,8 @@ def _context(records: list[dict]) -> str:
             for source in record["sources"]
         )
         boundaries = {key: record.get(key) for key in ("applicability", "verification", "claims")}
+        if record.get("skill_documents"):
+            boundaries["skill_documents"] = record["skill_documents"]
         lines.extend(
             [
                 "",

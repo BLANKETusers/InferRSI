@@ -7,8 +7,10 @@ import re
 from importlib.resources import files
 from typing import Any
 
-REPO_TYPES = ("vllm", "vllm_omni", "afd_plugin", "vllm_rlt")
+REPO_TYPES = ("vllm", "vllm_omni", "afd_plugin", "vllm_rlt", "strata", "sglang", "sglang_omni")
 # Learning scope does not imply that a repository has a runnable target adapter.
+# Legacy repository-pack records retain their contribution tier; an independent
+# peer card can describe a different learning use case for the same source repo.
 KNOWLEDGE_SCOPES = {
     "contribution": (*REPO_TYPES, "vllm_ascend"),
     "dependency": (
@@ -16,7 +18,9 @@ KNOWLEDGE_SCOPES = {
     ),
     "peer": ("sglang", "tensorrt_llm", "lmdeploy", "xdit", "cache_dit"),
 }
-KNOWLEDGE_REPOS = tuple(repo for repos in KNOWLEDGE_SCOPES.values() for repo in repos)
+KNOWLEDGE_REPOS = tuple(
+    dict.fromkeys(repo for repos in KNOWLEDGE_SCOPES.values() for repo in repos)
+)
 BACKENDS = ("cpu", "cuda", "rocm", "ascend")
 SCENARIO_ALIASES = {
     "diffusion.t2i": "diffusion.image_generation",

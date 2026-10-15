@@ -1,0 +1,20 @@
+{
+  "verdict": "INCONCLUSIVE",
+  "acceptance_issue": "https://github.com/ThinkFlowLab/OmniRSI/issues/10",
+  "reason": "No candidate passes the frozen all-concurrency gates. Fresh native-fusion async service controls also fail complete WER; exact replay controls do not resolve the cause.",
+  "runtime_pull_request": "https://github.com/david6666666/drama-3-single-b300-inference/pull/1",
+  "runtime_evidence_commit": "e58c8418005af8972d1616d5368009bc07dbe651",
+  "runtime_evidence": "https://github.com/david6666666/drama-3-single-b300-inference/tree/e58c8418005af8972d1616d5368009bc07dbe651/evidence/20261015-scale150",
+  "baseline_quality_groups": 21,
+  "baseline_scored_waveforms": 22848,
+  "packed_layer_graph_ownership_checks": 5076,
+  "packed_feasibility_quality_samples": 1088,
+  "candidate_all_concurrency_repetitions_complete": false,
+  "readme_success_example_added": false,
+  "native_computation_confirmed": true,
+  "all_eight_experts_retained": true,
+  "new_lossy_quantization_allowed": false,
+  "asynchronous_codec_configuration_selected": false,
+  "synchronous_native_fusion_feasibility_quality_samples": 1088,
+  "synchronous_native_fusion_feasibility_quality_passes": true
+}
