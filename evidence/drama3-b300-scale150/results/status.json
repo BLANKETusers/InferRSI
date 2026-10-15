@@ -1,0 +1,5 @@
+{
+  "verdict": "INCONCLUSIVE",
+  "acceptance_issue": "https://github.com/ThinkFlowLab/OmniRSI/issues/10",
+  "reason": "No candidate has completed the frozen all-concurrency performance and quality gates."
+}
