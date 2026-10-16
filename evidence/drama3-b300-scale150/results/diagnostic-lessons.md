@@ -177,3 +177,268 @@ all-concurrency acceptance or proof about every historical quality failure.
 All new raw groups, diagnostics, source snapshots and limitations are indexed in
 [the published mixed investigation](https://github.com/david6666666/drama-3-single-b300-inference/tree/dfdd598a9810cf6e7b8aa6a102f6ab9270ff9cc6/evidence/20261016-mixed).
 The runtime PR remains draft and the campaign remains INCONCLUSIVE.
+
+
+## C64 reference-gap investigation, 2026-10-16
+
+The target remains6765.407 frames/s with native full-top8 computation and the
+frozen quality gates. The measured isolated B64 reference is approximately7734
+frames/s; it is neither a hardware upper bound nor a service guarantee. The
+complete1088 asynchronous trace replaces old synchronous timing proportions.
+Client continuous in-flight is about63.98, with only about6ms equivalent missing
+client-slot time. Client dispatch starvation is not supported as the major gap.
+
+Rich tracing separates183228 real prompt tokens from208384 captured rows and
+2122 codec frame-bucket groups from2265 actual graph calls. Only143 calls are
+avoidable same-bucket partitions; frame-bucket diversity accounts for833 groups
+beyond the emit count. Neither percentage is a time-saving estimate. The trace
+records multi-step decode explicitly instead of equating graph calls with steps.
+
+Compact GDN passes2099 exact checks. Mixed-layout and empty-convolution changes
+pass339 checks each and339 combined. Nevertheless, their full one-run GPU0
+candidate is4306.693 frames/s versus4371.393 for the same-source control; both
+score all1088 outputs and pass WER/SIM. The candidate's frame count is2.106%
+higher and drain1.092s longer. Preserve the failed full throughput score and the
+fixed-state graph improvement as different observations.
+
+Deferred codec host submission preserves the original producer event and passes
+414-event dynamic exact replay. Its GPU6 feasibility is4430.811 frames/s versus
+4366.914, but it produces2.677% more frames, takes1.197% longer and regresses TTFA.
+Both complete quality groups pass; this is not a fixed-work throughput win or a
+reason to change the default.
+
+A controlled native interference probe passes all60 code/PCM/state comparisons.
+Four B64 steps take33.33ms alone, versus34.65–36.92ms with three real F8 codec jobs
+of batch1–8. Concurrent pair completion is still better than serial. Model-high
+stream priority has no material gain; queried graph flags confirm launch-stream
+priority was the tested variable. This establishes contention for those fixed
+inputs, not the recoverability of every service overlap interval.
+
+The existing FI GDN adapter was tested on the current mixed path. An initial
+numeric gate fails on a private padding sequence and remains recorded as FAIL.
+A separate FP32-reference and padding-isolation diagnostic identifies the live
+versus unused domain, but final prefill hidden RRMS is0.09118. The local timing
+gain is only1.776%, below the predeclared5% criterion, so no full service trial or
+promotion follows. Do not silently reinterpret the original failure as success.
+
+Short reserved attention contexts pass 1023 exact checks across 9 cases and a
+complete GPU7 service/quality pair. Combining this with compact GDN, mixed layout
+and empty-convolution guards gives a same-source GPU0 one-pair result of
+4353.909 → 4591.038 frames/s. Candidate TTFA p50/p95 is 140.774/268.097 ms,
+mean RTF 0.295911, WER 1.925814%, SIM 63.693694. Both 1088-output quality groups
+pass, and the candidate's +0.858% generated frames are retained. The observed
+single-run +5.446% is not a repeated speedup claim. It is only 1.0179× the frozen
+vLLM baseline and fails the 1.5× target.
+
+Codec minimum-launch repartitioning changes 5/80 PCM outputs; the original exact
+gate remains FAIL even after identifying private scratch versus real final state.
+A new MoE residual fusion also fails its first exact static check; no timing is
+claimed for that candidate. Codec resource limiting remains experimental.
+No all-concurrency acceptance or successful README example is claimed; the
+campaign remains INCONCLUSIVE. Complete source, commands, numeric failures and
+full service/quality records are [published at the frozen runtime revision](https://github.com/david6666666/drama-3-single-b300-inference/tree/ab2d9015d6b0115530e675f25bbf5f188b1d65b1/evidence/20261016-ceiling).
+
+
+## Native pipeline, rounding and resource-allocation follow-up
+
+The corrected MoE residual fusion preserves the reference compiler's native BF16
+FMA and passes2374 exact checks. The original separate-operation failure remains
+archived. Explicit reserved-slot routing passes2574 production checks while
+preserving every real full-top8 route and native activation/scales; its local
+benefit is limited to partially populated decode batches.
+
+The checkpoint embeds semantic/code1 for the next backbone. A native two-frame
+pipeline can therefore overlap its next backbone with eight remaining tower
+layers. Its production gate passes3689 exact checks, including slot reuse,
+max_frames and a separately injected first-EOS boundary. A callback-local buffer
+had been allocated on the main stream and consumed on an auxiliary stream after
+its reference expired. Retaining its lifetime is supported by a one-variable335
+exact-check diagnostic. An additional validation failure came from an eager call
+rebinding a Python tensor attribute; graph replay still updated the old captured
+storage. Both failed records remain, and the corrected validator pins addresses.
+These are model correctness gates; complete service evaluation is still separate.
+
+An actual emission ledger leaves47.58% of supported ordinary calls not already
+blocked by known audio boundaries. This is an upper bound, not actual pair use.
+Correlated chunk phases contradict an independent-row estimate. New capture
+warmups also advance the global sampling counter, so the service comparison must
+retain output lengths and cannot be labeled fixed-output merely because inputs
+match.
+
+Native codec resource caps require capture-time kernel assignment. NCU verifies
+all284 nodes of the inspected native B4/F8 graph. The full dynamic diagnostic
+covers46 captures and28 actual shapes, preserving414 trace entries,80 full PCM
+outputs and all model/codec state across normal/capped-sync/poll/thread modes.
+The complete service pair observes4412.554→4470.317 frames/s, with fewer output
+frames and arm-specific measured-cost DP feedback. Both1088-output quality groups
+pass (WER1.909068%/1.565771%, SIM63.902018/64.244919); the candidate remains below
+the baseline and target. Adjacent codec group coalescing likewise passes complete
+quality but regresses4513.299→4414.243 frames/s. Neither changes the campaign verdict.
+
+The best complete single-run quality-qualified observation remains4591.038frames/s,
+and the all-concurrency three-repeat requirement remains incomplete. All new raw
+results, preserved failures, source snapshots and limitations are
+[pinned in runtime evidence](https://github.com/david6666666/drama-3-single-b300-inference/tree/171acc82460f479b56372a57d9f7de7a154795aa/evidence/20261016-ceiling).
+No successful README example is added; the campaign remains INCONCLUSIVE.
+
+
+## Native structure follow-up: correctness and performance remain separate
+
+Issue#10 remains INCONCLUSIVE. Distinguishing queued admission from runnable
+admission raises two-frame eligibility from139/1902 to625/1246 lifetime ordinary
+launch decisions, including warmup. The complete1088-request pair observes
+4481.280→4583.673frames/s with both quality groups passing, but p50/p95 first
+audio rises. One feasibility pair is not a repeated gain or final acceptance.
+
+Private native-BF16 Linear parameter caching removes40 repeat autocast kernels
+from the codec. Original FP32 codec parameters, norm/layer-scale arithmetic and
+reference encoding remain unchanged. Local273 exact checks,46 captured shapes,
+and fixed80-request/414-entry dynamic replay pass. Yet full service observes
+4726.771→4585.126frames/s with all1088 outputs scored in each arm and quality
+passing. Output lengths and delivery tails differ; do not attribute the entire
+service delta to codec compute. The cache remains default off. The control is
+the best complete-quality single observation, not a claimed repeatable winner.
+
+Preserving native GDN warp/reduction order restores exact real-layer and full
+state results, while fused recurrence/norm is slower. Resource accounting must
+use the production specialization (182 registers/thread), not a debug output
+variant (177). A CPU lifetime change raises allocation to185 and is stopped.
+Shared MoE metadata removes duplicate routing work but the complete partition
+path still loses to native. Neither fewer launches nor exact outputs imply a
+performance gain. New resident-expert proposals remain unverified CPU designs.
+
+Autotuning comparisons must control algorithm-plan caches, not merely switch a
+flag. The first native cuDNN comparison reused a thread-local cache populated by
+control; its benchmark flag was absent from the key. Fresh host threads expose
+a PCM exact mismatch before timing. Preserve the original result and explicit
+correction, and keep a failed exact check distinct from unmeasured task quality.
+No user quality bound, precision boundary, expert count or acceptance gate is
+changed. Detailed artifacts are pinned by status.json's runtime evidence commit.
+
+The cache control follows the installed [pinned PyTorch implementation](https://github.com/pytorch/pytorch/blob/cf30153c4c131c8164ee7798e5022d810682e2cb/aten/src/ATen/native/cudnn/Conv_v8.cpp); this dependency source is kept in issue-scoped evidence rather than the vLLM-only imported source list.
+
+
+A fixed-work replay now separates causal codec contention from variable-length
+service scores. All4,177 exact checks pass on80 requests/414 trace entries;
+normal overlap lengthens model spans yet remains faster than serialization.
+Native weight caching reduces isolated codec time but only0.402% of combined
+wall time in this fixture. Its packed-prefill/single-step scope excludes the
+current mixed/frame-pipeline executor, whose separate event ledger is retained.
+Never present this replay as a complete service benchmark.
+
+Prefix reuse opportunities must be evaluated against arrival groups. Adjacent
+identical references can be simultaneous cold misses; completed-prefix hits and
+same-group deduplication require different state ownership. Cache identity must
+include all acoustic code rows. A valid suffix executor needs prefix K/V,
+convolution history and recurrent state, correct teacher labels and independent
+writable branch state. Count extra model traversals and precision boundaries
+before translating duplicate-row counts into a latency forecast.
+
+
+## Native arithmetic compatibility is an explicit implementation boundary
+
+The resident-MoE arithmetic foundation now has expanded component evidence.
+FC1's first discrepancy contains a physical16-element store permutation and a
+quantization-scale formula mismatch. Correcting those passes a single expert,
+but a subsequent zero-input expansion still fails. Native SASS lacks the
+candidate's tiny-amplitude clamp. A separate correction passes438 checks over
+15 native layer/routing fixtures plus original-native zero and near-threshold
+references. FC2's corrected physical BF16 store passes306 expanded checks, and
+a shared-memory activation body passes2063. Every original failure is retained.
+Do not substitute a plausible library reimplementation for the actual frozen
+native arithmetic reference; test layouts, scales, signed zero, partial routes,
+changed graph metadata and retained storage before timing.
+
+Resource capacity must be checked in final machine code and launch attributes.
+Correction: the FC1 source hints sum to53248, but the tested CUBIN reports REG32
+and contains no SASS register-reconfiguration instruction. The source-hint sum
+does not prove actual allocation or a one-CTA restriction. Shared intermediates require producer publication,
+consumer-completion synchronization and explicit lifetime reuse. Individually
+exact stages do not establish a connected cluster or end-to-end performance.
+
+An independent H/O GDN fusion keeps original BF16 intermediate rounding and
+passes90 real layer cases plus complete graph/state checks per variant. Yet
+three repetitions show no useful complete-MixedGraph reduction. The first V32
+variant doubles QK calculation relative to original O V64. Preserving V64
+removes that duplication but raises shared/TMEM allocation and still regresses
+the primary shape slightly. Eliminated intermediate bytes are not guaranteed
+DRAM savings or speed: live values, resident blocks and chunk parallelism also
+change. Both candidates stay out of production. No more tile sweep follows
+these negative results, and none changes service acceptance or quality bounds.
+
+The component evidence is
+[pinned with all raw gates and repetitions](https://github.com/david6666666/drama-3-single-b300-inference/tree/f1dc31d57e4d29699a5bfbe5b0fc29ed5e163333/evidence/20261016-ceiling).
+The component-only stage is superseded by the complete-call results below. C64 still needs
+6765.407frames/s, all-concurrency repeated acceptance remains incomplete, and
+no successful README example is claimed.
+
+
+## Resident composition and M128 layout/resource evidence
+
+The selected-expert resident FC1/activation/FC2 chain now passes489 exact checks
+for valid rows0–8, including graph replay, five original numeric boundaries and
+ownership. The native finalizer check substitutes only tested branches into an
+otherwise native oracle and is explicitly oracle-assisted. Full256 routing and
+performance are not implied. Actual complete launch uses79,488bytes perCTA and
+one outer-owned TMEM allocation, not a sum of individual component estimates.
+The initial host invocation passed compile-time constants to the runtime ABI;
+its failure occurred before candidate kernel execution and remains archived.
+
+An independently validated CuTe activation translation passes2066 checks; the
+previous C++ helper's2063 checks were not inherited. A separate M128 FC1 attempt
+fails its exact gate because four TMEM slices were stored as adjacent channels.
+A fixed32-channel permutation explains the observed bytes but does not pass the
+checker. The corresponding corrected M128 FC2 store preserves original K32/K128
+arithmetic and passes306 expanded checks across15native oracles/all256experts.
+The32,768 versus53,248 source-hint sums originally motivated a capacity
+hypothesis. Final machine-code inspection rejects that occupancy inference;
+the explicit correction and actual resource facts are recorded below.
+
+The GDN H/O negative experiments were independently recomputed. Their pre/post
+GPU process checks do not prove uninterrupted exclusivity; reports now state
+that limitation. Both original local continuation gates still fail. Every new
+component result remains below full-service acceptance scope, and C64's6765.407
+frames/s target and confirmed WER/SIM requirements are unchanged.
+
+
+## Complete-call evidence rejects both initial native MoE candidates
+
+The resident chain now passes1371 full256-expert boundary/ownership checks;
+its build without global debug exports passes1262 more, including empty work.
+Yet all15 complete-call scenarios regress across three alternating repetitions.
+Real layers0/19/39 are14.16%,21.51%,37.11% slower than the optimized vendor path.
+Global intermediate traffic is a small part of expert-weight traffic. A fused
+implementation also changes phase serialization, cluster synchronization and
+PDL behavior; eliminating buffers alone does not imply a net speedup.
+
+The M128 global-buffer body passes1253 checks and626 timed-run checks but only
+reduces latency by1.304%,0.569%,2.871% in the three real cases. Each misses the
+predeclared5% continuation gate. Preserve that failure even though some synthetic
+routing cases improve more. Neither implementation is promoted into the service.
+
+Native routing metadata can legally change physical row order between calls.
+Check actual-map bijection, token/expert ownership, bounds and prefix counts
+before comparing logical intermediate bytes. An archived physical mapping is
+not an invariant. Both original harness failures remain preserved; no mapping
+was inferred from output values and no numeric tolerance was relaxed.
+
+Final SASS also corrects the earlier register explanation. The tested M64/M128
+Prims TS and resident CUBINs report REG30–32 and no register-reconfiguration
+instructions. Vendor FC1 reports REG128 and eight `USETMAXREG` instructions.
+Searching only for `SETMAXNREG` misses that Blackwell spelling. The source
+53,248→32,768 hint sums do not establish occupancy doubling. Actual thread and
+shared-memory changes remain facts; performance attribution requires controls.
+
+A more concrete prefix proposal preserves original prefill on misses and exports
+FP32 recurrent state at an aligned internal boundary. Its CPU-only conservative
+ready-cache budget is roughly0.243s; adding same-group forks gives roughly1.235s.
+These are optimistic estimates, not observed savings. Same-group sharing needs
+per-layer state forks and suffix-aware kernels; ordinary cache insertion does
+not provide it. This route alone does not explain the missing service budget.
+
+C64's target remains6765.407 frames/s, best complete-quality observation remains
+4726.771, and all-concurrency repeated acceptance is incomplete. The next PDL
+candidate has a separate protocol; it cannot retroactively pass either failed
+complete-call experiment.
+
+Completed-call evidence and the resource correction are [pinned at runtime 13d0566](https://github.com/david6666666/drama-3-single-b300-inference/tree/13d0566bf71b2ccf634c79cdef3aea938decc96e/evidence/20261016-ceiling).
