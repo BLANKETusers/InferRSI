@@ -51,6 +51,19 @@ Author-reported means from three requests after two warmups; not independently v
 
 [Ascend measurements and rejected rounds →](docs/qwen-image-2.1-turbo-ascend.md) · [Upstream NPU patch](https://github.com/vllm-project/vllm-omni/pull/8729)
 
+### Drama 3: a dedicated streaming TTS engine on one B300
+
+[drama-3-single-b300-inference](https://github.com/david6666666/drama-3-single-b300-inference)
+is a standalone Python runtime built around native FP8 MoE, persistent GPU state,
+CUDA Graphs and incremental DAC audio decoding. Its recorded comparison with
+vLLM-Omni and SGLang-Omni covers C1–C64 throughput, TTFA and RTF, alongside WER/SIM
+quality scores, actual repeat counts and failed-run records.
+
+Campaign status is **INCONCLUSIVE**: the original all-concurrency throughput target
+remains unmet and optimization is paused.
+
+[Architecture & quickstart →](https://github.com/david6666666/drama-3-single-b300-inference#architecture) · [Recorded comparison →](https://github.com/david6666666/drama-3-single-b300-inference/blob/58a1882a4d941f8d21bfce6be37d3d5e7c9fde80/README.md#performance) · [Optimization lessons](evidence/drama3-b300-scale150/results/diagnostic-lessons.md) · [Acceptance issue](https://github.com/InferMatrixLab/OmniRSI/issues/10)
+
 <a id="quickstart"></a>
 
 ## 🚀 Quickstart
