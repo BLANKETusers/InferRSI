@@ -78,6 +78,34 @@ def main(argv: list[str] | None = None) -> int:
     argument_parser = parser()
     args = argument_parser.parse_args(argv)
     try:
+        if args.command == "skills":
+            # Optional dependencies load only for the skills command; the core
+            # CLI stays independent of them.
+            from .skill_catalog import (
+                get_skill,
+                skill_instructions,
+                skill_records,
+                skill_reference,
+                skill_resource,
+            )
+
+            if args.skills_action == "list":
+                records = skill_records(args.root)
+                if args.json:
+                    _print(records)
+                else:
+                    for record in records:
+                        print(f"{record['name']}\t{record['description']}")
+            elif args.skills_action == "show":
+                record = get_skill(args.root, args.name)
+                record["instructions"] = skill_instructions(args.root, args.name)
+                record["authority"] = "Reading instructions does not authorize their commands."
+                _print(record)
+            elif args.skills_action == "reference":
+                _print({"path": str(skill_reference(args.root, args.name, args.path))})
+            else:
+                _print({"path": str(skill_resource(args.root, args.name, args.path))})
+            return 0
         if args.command == "knowledge":
             if args.knowledge_action == "show":
                 _print(get_knowledge(args.id))

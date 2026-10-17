@@ -5,6 +5,42 @@ CLI, RunSpec, knowledge retrieval and existing command contracts remain stable.
 The diagrams below describe implemented code, with the historical compatibility
 boundary called out separately.
 
+## Three-objective delivery framing
+
+The current WIP develops three connected objectives, detailed in the
+[README overview](../README.md#three-objectives-of-the-current-wip):
+
+1. **Roofline / Optimization Headroom:** source-grounded bounds, observed
+   attainable limits, calibrated predictions and experiment selection. The
+   ceiling skill is guidance, not an automatic calculator; application results
+   require their own measurements.
+2. **Dense Commit Coordination:** ownership, concurrent work, review, testing,
+   integration, release and feedback into later changes. The existing Magpie
+   material is history analysis. A first-hand coordination case is pending Dot
+   delivery and owner review; neither that analysis nor paper methodology
+   implements or verifies an autonomous development pipeline.
+3. **Skill System:** reusable candidate skills, knowledge and cases, the
+   [Reference Matrix](reference-matrix.md) and
+   [SearchSpace Matrix](searchspace-matrix.md), and explicit read-only access.
+   The two matrices describe evidence and coverage; they do not drive an
+   automatic router or execution loop.
+
+This framing is presentation and delivery traceability, not a third primary
+matrix. Dot owns source extraction, the owner approves sources and reviews
+content/mappings, and the integration workstream owns reconciliation with the
+current artifacts. Candidate coverage and empirical validation stay separate.
+Paper versions/readsets remain distinct from implementation pins; a shared
+lineage or a linked paper is not independent corroboration.
+
+Reviewed paper comparisons, readsets and cases live under their owning skill's
+`references/` tree; distinct workflows receive their own candidate entrypoints.
+Paper knowledge does not supply repository-only schema fields such as a Git SHA,
+so it remains linked Markdown rather than a parallel registry or fabricated
+`repo_packs` record. The [knowledge-base contract](knowledge-base.md) defines
+local sidecar ownership, typed source examples, shared checkout references and
+legacy package compatibility. Normalized Collect and a writable store are separate
+follow-ups; existing commands remain supported.
+
 ## Module responsibilities and dependencies
 
 ![Implemented modules and their dependencies](assets/modular-components-en.svg)
@@ -35,6 +71,7 @@ src/omnirsi/
   cli.py, arguments.py       Existing CLI
   runspec.py, contracts.py   Immutable experiment contract and compatibility export
   catalog.py                Knowledge search and cited context
+  skill_catalog.py          Explicit local skill metadata/instructions/resource resolution
   harness/
     runner.py               One AB/BA loop; execute/snapshot adapter hooks
     evaluation.py           Performance/quality/source-integrity adjudication
@@ -60,7 +97,9 @@ src/omnirsi/
     artifacts.py            Hashing and evidence writes
     campaign.py             Legacy runner utility facade; transitive helper hashes
   data/
-    repo_packs/             Repository descriptors and versioned tuning knowledge
+    repo_packs/             Contribution descriptors and versioned tuning knowledge
+    knowledge_packs/        Dependency and peer knowledge, preserving existing tiers
+    skill_library/          Bilingual procedures, provenance, licenses and helpers
     platform_packs/         Backend metadata and qualification context
   execution.py              Compatibility entrypoint -> harness.runner
   evaluation.py             Compatibility exports -> harness.evaluation
@@ -202,6 +241,15 @@ experience records and exported context omit PR links. Evidence levels describe
 guidance or reported measurements independently from a source's merge status.
 Imported skills are source material, not executable tool authority. CPU tests
 do not upgrade imported knowledge to a validated claim.
+
+The optional `skills` CLI reads an explicit local `--root` (default `./skills`),
+using PyYAML from the `skills` extra. It lists only frontmatter, loads only a
+named skill's instructions, and resolves a named resource inside that skill for
+an external file reader. It never installs, routes, executes or updates skills.
+These checkout assets are not wheel package data; the catalog is a projection,
+not another authoritative matrix. Core knowledge commands remain independent
+of the optional parser.
+
 Run evidence remains in the caller-selected run directory; frozen campaign
 plans/results/patches/validators remain under `evidence/`.
 

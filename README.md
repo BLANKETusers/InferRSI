@@ -24,6 +24,34 @@ OmniRSI is a **CLI workbench for inference optimization with coding agents**. Br
 
 You drive profiling and code changes; OmniRSI runs and evaluates the benchmark and validation commands you provide.
 
+## Three objectives of the current WIP
+
+These objectives frame the candidate-intelligence work; they are not another
+coverage matrix or claims that an autonomous system has been implemented.
+
+| Objective | Question | Existing artifacts | Supported findings | Remaining work |
+|---|---|---|---|---|
+| **1. Roofline / Optimization Headroom** | What limits performance, how much headroom may remain, and which experiments are worth pursuing? | [Performance ceiling analysis](skills/performance-ceiling-analysis/SKILL.md), measurement and search guidance | Source-backed analytical/empirical/Amdahl reasoning; estimates depend on workload, algorithm and measurement assumptions | Calibrate predictions and qualify application outcomes; no automatic ceiling calculator |
+| **2. Dense Commit Coordination** | How can ownership, concurrent changes, review, testing, integration, release and feedback sustain agent-driven development? | [Repository evolution analysis](skills/repository-evolution-analysis/SKILL.md), [historical Magpie analysis](PHASE1_REPORT.md#workstream-2--repository-evolution-and-fast-iteration) | Historical commit/capability analysis and temporal-split methodology; statistics are not causal evidence of development speed | Dot's first-hand Magpie coordination case, then owner review; no implemented Magpie-style autonomous pipeline |
+| **3. Skill System** | How do we preserve, organize and expose reusable optimization intelligence? | [Reference Matrix](docs/reference-matrix.md), [SearchSpace Matrix](docs/searchspace-matrix.md), [candidate skills](skills/), explicit read-only CLI | Source-backed candidate procedures, knowledge and cases with scoped evidence; metadata listing and explicit instruction/resource access | Content review and separately authorized efficacy/compatibility validation; matrices do not automatically route tasks |
+
+Dot owns first-hand extraction; the owner approves sources and reviews content
+and mapping; the integration workstream reconciles accepted material with the
+actual local system. Exactly two primary matrices remain. Green coverage means
+candidate intelligence with source support, not measured gains or completed A/B
+validation. The earlier [Phase 1 report](PHASE1_REPORT.md) is historical.
+
+Reviewed paper intelligence extends [simulation calibration](skills/calibrate-serving-simulation/SKILL.md),
+[serving-state decisions](skills/assess-serving-preemption/SKILL.md),
+[training memory](skills/plan-activation-residency/SKILL.md),
+[attention diagnosis](skills/diagnose-attention-bottlenecks/SKILL.md) and
+[skill/search methodology](skills/npu-skill-factory/SKILL.md). Exact paper
+versions, readsets, mechanism comparisons and cases remain linked through the two
+matrices. On 2026-10-16 the inventory is **43 branch-added candidates + 5 inherited
+skills = 48 directories**. This is a content-integration count, not an efficacy
+result. The earlier six-paper foundation archive remains an unavailable input;
+new Magpie coordination evidence is still pending.
+
 <a id="results"></a>
 
 ## 📊 From profiling to a 30.60% latency reduction
@@ -88,6 +116,29 @@ omnirsi context --repo-type vllm_omni --backend ascend \
 ```
 
 Ready to measure your own model? [Connect your benchmark and quality checks →](docs/quickstart.md#real-remote-experiment)
+
+### Read local candidate skills
+
+Install the optional parser with `python -m pip install '.[skills]'`. From this
+checkout (or pass `--root /path/to/skills` before the subcommand):
+
+```bash
+omnirsi skills list --json
+omnirsi skills show weight-loading-optimization
+omnirsi skills resource <skill-name> <relative-resource-path>
+```
+
+Listing reads frontmatter and local sidecar metadata only. `show` explicitly selects one instruction body
+and lists resource filenames; `resource` resolves one path for your file reader
+without loading its contents or executing it. Skills are local checkout assets,
+not bundled wheel data. There is no installation, client configuration, automatic
+selection or update. Reading instructions does not authorize their commands.
+This generated catalog projects metadata; the Reference and SearchSpace
+matrices remain the two authoritative matrices. Offline integration checks do
+not validate candidate effectiveness. See the [knowledge-base contract](docs/knowledge-base.md)
+for field ownership, legacy compatibility, shared checkout references and the
+separate read/Collect and writable-store follow-ups to RFC #17.
+
 
 <a id="architecture"></a>
 
