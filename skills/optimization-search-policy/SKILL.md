@@ -181,7 +181,7 @@ The [experiment-governance procedure](../performance-ceiling-analysis/references
 and [decision cases](../performance-ceiling-analysis/references/papers-20261015/cases/decision-cases.md)
 retain the reviewed A-pack mechanism, costs and limits. InferenceBench's
 within-vLLM matched two-hour comparison is separate from its grid of independent
-per-engine two-hour searches. None is an OmniRSI measurement.
+per-engine two-hour searches. None is an InferRSI measurement.
 
 ---
 
@@ -217,7 +217,7 @@ implement no controller, evaluator repair, logit interface or autonomous loop.
 Source: https://arxiv.org/pdf/2608.01867
 Mechanism: Agent learns to classify each step in an experiment as either "critical" (evidence-gathering that informs the next decision) or "redundant" (confirmatory or exploratory without decision impact). During candidate evaluation, the agent prioritizes critical steps and can defer or skip redundant steps, reducing total experiment cost by 15-33% while maintaining accuracy. The mechanism uses a learned model to identify which measurement or profiling steps actually change the verdict; once a critical step has a clear result, subsequent steps are skipped.
 Answers question: (3) How should experiment cost affect candidate selection?
-OmniRSI adaptation: prioritize the least expensive discriminating regimes for screening. Screening may reject a candidate early; it cannot skip the frozen acceptance regimes or substitute for required service-level evidence. The historical CRISP summary is carried, not re-extracted in this wave; its numerical claim is not a local result or a default budget target.
+InferRSI adaptation: prioritize the least expensive discriminating regimes for screening. Screening may reject a candidate early; it cannot skip the frozen acceptance regimes or substitute for required service-level evidence. The historical CRISP summary is carried, not re-extracted in this wave; its numerical claim is not a local result or a default budget target.
 
 ### Stopping follows the current evidence contract
 

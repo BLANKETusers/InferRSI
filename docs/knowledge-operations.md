@@ -6,7 +6,7 @@ Python; it requires no conversation or workflow object.
 
 ```python
 from pathlib import Path
-from omnirsi.knowledge_operations import KnowledgeReader
+from inferrsi.knowledge_operations import KnowledgeReader
 
 reader = KnowledgeReader(skill_root=Path("skills"))
 result = reader.collect(ids=["calibrate-serving-simulation"], material=True, limit=1)

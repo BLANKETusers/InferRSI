@@ -1,6 +1,6 @@
 # Knowledge base contract
 
-This implements the K0/K1 content foundation of [RFC #17](https://github.com/InferMatrixLab/OmniRSI/issues/17).
+This implements the K0/K1 content foundation of [RFC #17](https://github.com/InferMatrixLab/InferRSI/issues/17).
 The coding agent owns planning and conversation and acts within explicit scope
 and delegated authority. Reading material never executes a helper or grants
 permission to change a target system.
@@ -16,11 +16,11 @@ skills/<id>/SKILL.md                 Local name, description, substantive proced
 skills/<id>/metadata.json            Local provenance, state and relationships
 skills/<id>/references/              Owner's mechanisms, readsets and comparisons
 skills/<id>/cases/                   Owner's scoped cases (optional)
-src/omnirsi/catalog.py               Installed knowledge reader
-src/omnirsi/skill_catalog.py         Explicit checkout skill reader
-src/omnirsi/data/repo_packs/         Contribution records and existing public IDs
-src/omnirsi/data/knowledge_packs/    Dependency and peer records
-src/omnirsi/data/skill_library/      Imported bilingual procedures, licenses, helpers
+src/inferrsi/catalog.py               Installed knowledge reader
+src/inferrsi/skill_catalog.py         Explicit checkout skill reader
+src/inferrsi/data/repo_packs/         Contribution records and existing public IDs
+src/inferrsi/data/knowledge_packs/    Dependency and peer records
+src/inferrsi/data/skill_library/      Imported bilingual procedures, licenses, helpers
 evidence/<campaign-id>/             Frozen plans, results, patches and validators
 docs/reference-matrix.md            Sources, inspected scope and extraction
 docs/searchspace-matrix.md          Resource × optimization-stage coverage
@@ -138,7 +138,7 @@ Local `resource` access remains restricted to the selected skill. Declared
 cross-skill `reference` access is restricted to the complete selected skills root:
 
 ```bash
-omnirsi skills --root /path/to/skills reference inference-benchmark-design \
+inferrsi skills --root /path/to/skills reference inference-benchmark-design \
   ../inference-optimization-casebook/cases/admission-drain-occupancy.md
 ```
 
@@ -159,7 +159,7 @@ The writer will not edit site-packages, frozen evidence or source checkouts.
 A version field alone provides no concurrency guarantee. No automatic promotion
 or LLM generation is required.
 
-[Issue #15](https://github.com/InferMatrixLab/OmniRSI/issues/15) can consume the field
+[Issue #15](https://github.com/InferMatrixLab/InferRSI/issues/15) can consume the field
 ownership, source-linked references and scoped case pattern here. Its mandatory
 perf-loop, fixed skill count, global numeric policies and separate case registry
 are not imported. Exactly two primary matrices remain; HBM is not host RAM and
