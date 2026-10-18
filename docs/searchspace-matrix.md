@@ -276,6 +276,14 @@ for translation, filename, package installation or an unexamined trace.
 | OS / System | No new OS-control mechanism credited | Existing OS-specific rows retained | Process/stage ownership and installed access are not scheduler-priority or cgroup evidence |
 | Accelerator / Host | Observe/Verify: actual active batch, admission/drain scope and state lifetime | [Shared internal case](../skills/inference-optimization-casebook/cases/admission-drain-occupancy.md); [main audio guidance](../src/inferrsi/data/repo_packs/vllm_omni/knowledge/cuda/audio/concurrency-scaling-state-and-overlap.json) | Recorded observation versus interpretation; frozen evidence preserved, no new service gain |
 
+The existing casebook/search-policy path now also exposes rejected directions
+for [Qwen B300](../skills/inference-optimization-casebook/cases/qwen-b300-rejected-directions.md),
+[Qwen Ascend](../skills/inference-optimization-casebook/cases/qwen-ascend-rejected-directions.md)
+and [Drama3](../skills/inference-optimization-casebook/cases/drama3-rejected-directions.md).
+They inform Observe/Diagnose/Verify under their recorded Accelerator/Host scope;
+no new green coverage, Network/OS capability or measured gain is credited.
+Current applicability and a changed condition must be established before retry.
+
 The 15 contribution abstracts for Strata, vLLM, SGLang, SGLang-Omni and vLLM-Omni
 supply scoped architecture, tuning and validation navigation, including their
 bilingual procedures. They do not qualify every backend listed by their upstream

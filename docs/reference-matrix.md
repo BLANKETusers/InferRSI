@@ -258,6 +258,14 @@ measured coverage. All catalog IDs, tiers, languages and licenses remain unchang
 | Internal Drama3 issue #10 | Recorded continuous-admission versus drain occupancy; diagnostic section inspected, original trace not reread | [One reusable case](../skills/inference-optimization-casebook/cases/admission-drain-occupancy.md); INCONCLUSIVE campaign, reported artifact hash, no new gain claim |
 | Main audio source guidance | Scheduler-step, graph/state/stream ownership, actual dispatch and complete-service limits at the record's source pin | [Existing audio record](../src/inferrsi/data/repo_packs/vllm_omni/knowledge/cuda/audio/concurrency-scaling-state-and-overlap.json); imported guidance stays unverified |
 
+Rejected-direction extraction reuses the same pinned main source summaries:
+[Qwen B300](../skills/inference-optimization-casebook/cases/qwen-b300-rejected-directions.md),
+[Qwen Ascend](../skills/inference-optimization-casebook/cases/qwen-ascend-rejected-directions.md)
+and [Drama3 B300](../skills/inference-optimization-casebook/cases/drama3-rejected-directions.md).
+These are three additional Case bundles, not new source mechanisms, skills,
+independent corroboration or hardware validation. Each separates recorded
+disposition from a proposed diagnostic check and retains the source limits.
+
 The [knowledge-base contract](knowledge-base.md) owns field and mode semantics.
 Missing early six-paper input stays blocked. Historical reports and A–F readsets,
 comparisons and cases remain preserved; catalog translation/import does not add

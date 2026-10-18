@@ -76,6 +76,17 @@ Before generating a new candidate, consult:
    in this configuration? If yes, the burden of justification is higher —
    something about the conditions must have changed to try again.
 
+   InferRSI's source-linked options are the [Qwen B300 rejection case](../inference-optimization-casebook/cases/qwen-b300-rejected-directions.md),
+   [Ascend reported rejection case](../inference-optimization-casebook/cases/qwen-ascend-rejected-directions.md)
+   and [Drama3 diagnostic case](../inference-optimization-casebook/cases/drama3-rejected-directions.md).
+   First distinguish quality rejection, no demonstrated gain, resource failure,
+   confounded control, unintegrated lead and analytical rejection. Match the
+   source revision, workload, device and evidence level before drawing a lesson.
+   Record the changed condition or unresolved question and the cheapest check
+   that can distinguish it. A matching keyword is a lead, not a causal diagnosis
+   or an automatic veto; do not exclude a different solution family because one
+   implementation failed. The original campaign verdict and pause remain intact.
+
 3. **Stage fraction**: is the target stage actually a significant fraction of
    E2E time? A 20% speedup on a stage that is 5% of E2E yields 1% overall.
    Compute the Amdahl contribution before committing to expensive work.

@@ -147,6 +147,33 @@ the declared local-profile mode. A single copied skill folder with external link
 is **not** advertised as a standalone export. Package catalog/library access stays
 available after noneditable installation; local `skills/` is not wheel data.
 
+## Negative results as diagnostic options
+
+The existing Case authority now also holds scoped rejected directions for
+[Qwen B300](../skills/inference-optimization-casebook/cases/qwen-b300-rejected-directions.md),
+[Qwen Ascend](../skills/inference-optimization-casebook/cases/qwen-ascend-rejected-directions.md)
+and [Drama3 B300](../skills/inference-optimization-casebook/cases/drama3-rejected-directions.md).
+The records cite exact source summaries; they add no hardware validation.
+Observation, original disposition and newly suggested revisit checks stay
+separate. Raw evidence remains at its existing frozen owner.
+
+This design uses failure as conditional evidence. Under comparable conditions,
+it can reduce redundant work and suggest a cheap discriminating check. A hard
+blacklist would overgeneralize across revisions, hardware and implementations;
+an unqualified transcript dump would mix environment failures with algorithmic
+ones. Reusing owner-local cases also keeps the existing source/revision rules
+and avoids a second negative-result database. These are design arguments, not
+a measured improvement in agent performance.
+
+Read the case before choosing a candidate. State the applicable signal,
+counter-signal, changed condition and next check; distinguish quality rejection,
+missing gain, resource failure, confounding, missing integration and analytical
+rejection. Confirm a new root cause with its own evidence. A retry needs its
+own authorized scope and frozen controls. Cases do not change PASS / FAIL /
+INCONCLUSIVE, promote a candidate, resume paused work or automatically route
+tasks. [Collect examples](knowledge-operations.md#retrieve-diagnostic-options)
+and the existing search-policy references expose the records explicitly.
+
 ## Implemented operations and bounded follow-ups
 
 | Slice | Implemented here | Deferred contract |
