@@ -165,3 +165,14 @@ When copying the repository, rename `src/inferrsi`, update package metadata,
 imports and tests, and keep the three module boundaries explicit. Copy the
 [evidence template](../evidence/_template/) for each campaign. Reuse portable
 [skills](../skills/) as workflow guidance; keep campaign pins out of them.
+
+For a standalone engine delivery, start with the
+[engine delivery template](template/README.md) in `docs/template/` instead of
+copying the entire InferRSI runtime. It covers language-specific adaptation,
+approved local brand assets, the four evidence segments and schema-v1 source
+recipes for [InferMatrixLab/recipe](https://github.com/InferMatrixLab/recipe).
+The engine owns implementation and recipes; catalog maintainers own collection,
+schema and website; the acceptance owner owns performance verdicts. Follow the
+template's copy, validation and catalog-registration steps. Missing hardware
+verification remains explicit, and existing InferRSI scenario recipes and four
+CI lanes retain their current roles.

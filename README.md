@@ -179,5 +179,6 @@ campaigns out of the common AB/BA scheduler, process cleanup and evaluator.
 | [Five-engine knowledge library (English / 中文)](src/inferrsi/data/skill_library/README.md) | Strata, vLLM, SGLang and both Omni engines: skills, search spaces, sources and CLI retrieval |
 | [vLLM-Omni experience records](src/inferrsi/data/repo_packs/vllm_omni/knowledge/README.md) | Backend-scoped tuning methods, sources, and applicability |
 | [Contributor guide](docs/contributing.md) | Development workflow, evidence contracts, and CI |
+| [Engine delivery template](docs/template/README.md) | Copyable engine scaffold, branding, evidence and schema-v1 catalog recipe |
 
 **Build with us.** Bring a bottleneck, a reproducible optimization, or a tuning lesson. [Open an issue →](https://github.com/InferMatrixLab/InferRSI/issues) Use `git commit -s` for contributions.
