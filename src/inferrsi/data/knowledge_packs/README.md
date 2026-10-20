@@ -24,7 +24,8 @@ inferrsi/data/
     README.md                                         Cross-repository navigation
     dependency/REPO/BACKEND/COMPONENT/ENTRY.json        Dependency impact
     peer/REPO/BACKEND/COMPONENT/ENTRY.json              Technique candidates
-skills/learned/REPO/BACKEND/COMPONENT/                  Future reviewed L2C skills
+  skill_library/                                     Full categorized skills/resources
+  skill_library/learned/REPO/BACKEND/COMPONENT/         Future reviewed L2C skills
 runs/learning/RUN_ID/                                  Future learning logs/state
 ```
 
@@ -33,6 +34,17 @@ retain their IDs, paths and contents. Schema-v1 records without `tier` belong
 to `contribution`. New external records declare `tier`; the loader checks it
 against the owning directory as well as ID/repository/backend/component.
 `repo` always identifies the source owner, not a validated downstream target.
+
+The [InferRSI skill catalog](../repo_packs/inferrsi/knowledge/README.md)
+adds generated contribution-tier records for all 48 migrated skills. Their full
+procedures, sidecars, references and cases now live in the
+[packaged skill library](../skill_library/README.md); `skill_documents.original`
+links each record to its procedure. Hardware guidance lives under the matching
+`hardware/ascend`, `hardware/cuda` or `hardware/host` directory; other owners are
+frameworks, repositories, methods and workflows. Search with `--repo-type inferrsi`
+and optionally `--backend ascend` or `--backend cuda`. Original state, provenance
+and unknown licensing are preserved separately from the unverified catalog
+record. Backend classification and `skills.discovery` imply no qualification.
 
 Skills/log directories above are future workflow destinations, not a running
 L2C integration. There are no learned L2C skills or vLLM/vllm-ascend performance
