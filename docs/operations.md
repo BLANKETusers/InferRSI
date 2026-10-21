@@ -16,7 +16,7 @@ Effect classes used below:
 
 | Intent | Entry | Effect class | Boundary |
 | --- | --- | --- | --- |
-| Search packaged records | CLI `knowledge search` / `knowledge show`; catalog API | Read-only | Installed package catalog with the existing tier/repo/backend/scenario filters and IDs; these package-only filters exclude checkout skills and cases |
+| Search packaged records | CLI `knowledge search` / `knowledge show`; catalog API | Read-only | Installed package catalog with the existing tier/repo/backend/scenario filters and IDs; these package-only filters exclude skills and cases from every other authority |
 | Discover/read packaged or custom skills | CLI `skills list` / `show` / `resource` / `reference` | Read-only | Metadata-first listing; `show` loads one named instruction body; `resource`/`reference` resolve paths for your file reader without loading or executing them |
 | Collect normalized knowledge | CLI `collect`; Python `KnowledgeReader.collect` | Read-only | Explicit sources, authority-qualified identities, exact revisions, bounded output and explicit omissions |
 | Read exact material/resources | CLI `read` / `resource`; Python `KnowledgeReader.read` / `KnowledgeReader.resource` | Read-only | Returns the requested revision or an explicit unavailable/stale error; never substitutes newer bytes |
@@ -36,9 +36,9 @@ are distinct from `knowledge search`, whose package catalog filters
 
 - **Inputs:** query words plus optional `--tier`, `--repo-type`, `--backend`, `--scenario`, `--limit`, `--json`; `show` takes one record ID.
 - **Scope:** the installed package catalog (`repo_packs`, `knowledge_packs`) only.
-- **Output:** ranked catalog records or one full record.
+- **Output:** tab-separated record lines (id, status, backend, title), or a JSON list with `--json`; `show` prints one full record as JSON.
 - **Side effects:** none.
-- **Failure behavior:** explicit no-match; unsupported filter values are reported.
+- **Failure behavior:** no match prints nothing and exits 0 — an empty result is not an error (an empty JSON list with `--json`); an unknown `show` ID and unsupported filter values exit 2.
 - **Example:** `inferrsi knowledge search 'Qwen-Image-2.1' --repo-type vllm_omni --backend ascend`
 
 The tier/repo/backend/scenario filters are package-only: an empty filtered
@@ -59,11 +59,11 @@ packaged bodies; the two matrices remain authoritative.
 
 ### Export legacy cited material — `context`
 
-- **Inputs:** query plus optional tier/repo/backend/scenario filters and `--output`.
+- **Inputs:** optional query; **required** `--repo-type` and `--backend`; optional `--tier`, `--scenario`, `--limit`, `--output`.
 - **Scope:** cited catalog material from the installed package.
-- **Output:** a Markdown reference bundle at the chosen path.
+- **Output:** a Markdown reference bundle at the chosen path (the resolved path and record count are reported), or to stdout without `--output` (text only).
 - **Side effects:** writes only the caller-chosen output file.
-- **Failure behavior:** explicit no-match.
+- **Failure behavior:** no match produces an empty export (header only), not an error; unsupported filter values exit 2.
 - **Example:** `inferrsi context --repo-type vllm_omni --backend cuda --output context.md`
 
 Imported source text is data for your agent, not authorization to execute
@@ -73,16 +73,16 @@ upstream instructions.
 
 ### Collect — `collect` / `KnowledgeReader.collect`
 
-- **Inputs:** optional query, `--kind`, repeatable explicit `--id`, repeatable `--revision ID=REV`, `--limit`, `--max-bytes`, `--material`; `--skill-root` adds the checkout, `--store` opens an existing store read-only (the store records its reserved checkout and rejects a mismatched or missing `--skill-root`).
-- **Scope:** installed package records plus (with `--skill-root`) checkout skills and cases, plus (with `--store`) store candidates; bounded output.
-- **Output:** items with authority-qualified refs, content revisions and applicability metadata, plus explicit `no_match`, `omissions` (each with a reason code) and `collisions`; exit 0 even for an explicit no-match envelope.
+- **Inputs:** optional query, `--kind`, repeatable explicit `--id`, repeatable `--revision ID=REV`, `--limit`, `--max-bytes`, `--material`; `--skill-root` selects an explicit skills root, `--store` opens an existing store read-only (the store records its reserved skills root and rejects a mismatched or missing `--skill-root`).
+- **Scope:** installed package records plus (with `--skill-root`) skills and cases from the explicitly selected root, plus (with `--store`) store candidates; bounded output.
+- **Output:** with `--json`, the complete **normalized** envelope — items carrying the bundle's normalized metadata, resources and dependencies, plus `no_match`, `omissions`, `collisions`, `material_bytes` and the recorded limitations; fields that exist only in a package record's original entrypoint document are not projected into the normalized metadata and are read via `--material` or `resource`. Without `--json`, the envelope's selection is projected line-wise: one tab-separated line per item (`ref`, `revision`, `kind`, `state`, recorded `applicability`; free-text fields are control-character-escaped so one item stays one line), `collision` lines for multi-authority IDs, `omitted` lines with reason codes, an explicit `no_match` line when nothing was selected (query, filters or limits; when items were skipped the `omitted` lines above it carry the per-item causes), and — with `--material` — the entrypoint content in delimited blocks. The text mode does not print `material_bytes` or the envelope limitations; use `--json` for the complete envelope. The recorded `state` and applicability are printed as recorded and no validation status is invented. Exit 0 covers a result envelope, including no-match and omissions.
 - **Side effects:** none; both adapters and the read-only store connection are read-only.
 - **Failure behavior:** discovery-wide invalid identities fail the call; per-item omissions are reported individually. Package repo/tier/backend/scenario filters exclude checkout items.
 - **Example:** `inferrsi collect 'Ascend OOM' --kind case --limit 3 --material --skill-root src/inferrsi/data/skill_library`
 
 ### Read exact material/resources — `read` / `resource` / `KnowledgeReader.read` / `.resource`
 
-- **Inputs:** a qualified or unambiguous public ID; optionally the exact content revision; a relative resource key for `resource`.
+- **Inputs:** `read` takes a qualified or unambiguous public ID and an optional `--revision` (the current revision when omitted); `resource` takes the ID, a relative resource key, and the **required** exact `--revision` returned by collect/read plus the required `--output` path.
 - **Scope:** one selected bundle from the package, checkout or store adapter.
 - **Output:** the bundle view at the requested revision, or the resource bytes (`resource` writes them to the required `--output` path).
 - **Side effects:** `resource` writes only the caller-chosen output file.

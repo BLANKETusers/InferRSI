@@ -44,6 +44,16 @@ def _revisions(pairs: list[str]) -> dict[str, str]:
     return revisions
 
 
+def _tsv(value: str) -> str:
+    # One line per record: free-text fields may contain tabs or line breaks.
+    return (
+        value.replace("\\", "\\\\")
+        .replace("\t", "\\t")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+    )
+
+
 def _run_directory(output_dir: str, run_id: str) -> Path:
     root = Path(output_dir).resolve()
     directory = (root / run_id).resolve()
@@ -169,11 +179,36 @@ def main(argv: list[str] | None = None) -> int:
             if args.json:
                 _print(result)
             else:
+                for identity in result["collisions"]:
+                    print(
+                        f"{identity}\tcollision\towned by multiple authorities; qualify the ref"
+                    )
                 for item in result["items"]:
-                    print(f"{item['ref']}\t{item['revision']}\t{item.get('title', item['ref'])}")
+                    if "applicability" in item:
+                        value = item["applicability"]
+                        applicability = (
+                            _tsv(value)
+                            if isinstance(value, str)
+                            else json.dumps(value, ensure_ascii=False, sort_keys=True)
+                        )
+                    else:
+                        applicability = "-"
+                    print(
+                        f"{item['ref']}\t{item['revision']}\t{item['kind']}"
+                        f"\t{_tsv(item['state'])}\t{applicability}"
+                    )
+                    if args.material and "content" in item:
+                        print(f"--- begin content {item['ref']} @ {item['revision']} ---")
+                        print(item["content"], end="" if item["content"].endswith("\n") else "\n")
+                        print(f"--- end content {item['ref']} ---")
                 for omission in result["omissions"]:
-                    detail = f"\t{omission['detail']}" if "detail" in omission else ""
-                    print(f"{omission['id']}\tomitted\t{omission['reason']}{detail}")
+                    detail = f"\t{_tsv(omission['detail'])}" if "detail" in omission else ""
+                    print(f"{_tsv(omission['id'])}\tomitted\t{omission['reason']}{detail}")
+                if result["no_match"]:
+                    print(
+                        "no_match\tnothing selected from the requested sources; "
+                        "use --json for the full envelope"
+                    )
             return 0
         if args.command == "read":
             bundle = _knowledge_reader(args).read(args.id, revision=args.revision)
