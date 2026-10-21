@@ -212,6 +212,10 @@
     "audit-sd-cpp-residency": {
       "path": "repositories/stable-diffusion-cpp/audit-sd-cpp-residency",
       "backend": "common"
+    },
+    "audit-sglang-diffusion-lifetimes": {
+      "path": "repositories/sglang/audit-sglang-diffusion-lifetimes",
+      "backend": "common"
     }
   }
 }
