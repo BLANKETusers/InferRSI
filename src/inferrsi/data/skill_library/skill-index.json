@@ -216,6 +216,10 @@
     "audit-sglang-diffusion-lifetimes": {
       "path": "repositories/sglang/audit-sglang-diffusion-lifetimes",
       "backend": "common"
+    },
+    "diffusers-invocation-state": {
+      "path": "frameworks/diffusers/diffusers-invocation-state",
+      "backend": "common"
     }
   }
 }
