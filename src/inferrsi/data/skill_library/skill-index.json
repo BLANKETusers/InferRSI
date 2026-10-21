@@ -208,6 +208,10 @@
     "audit-llama-runtime-state": {
       "path": "repositories/llama-cpp/audit-llama-runtime-state",
       "backend": "common"
+    },
+    "audit-sd-cpp-residency": {
+      "path": "repositories/stable-diffusion-cpp/audit-sd-cpp-residency",
+      "backend": "common"
     }
   }
 }
