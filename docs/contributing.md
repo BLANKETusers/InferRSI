@@ -28,6 +28,13 @@ Synthetic benchmark scripts belong in `tests/fixtures/`; historical validator
 snapshots in `tests/fixtures/legacy/` remain byte-for-byte frozen. Current runnable
 examples are the three Qwen scripts under `examples/`.
 
+Git treats recorded bundles under `evidence/` and `tests/fixtures/legacy/` as
+exact bytes (`-text`), so checkout and add do not normalize their line endings.
+The evidence README and reusable `_template/` remain ordinary LF text. This
+policy does not renormalize existing blobs or authorize edits to frozen files.
+Nightly checks cover Linux and Windows checkouts with `core.autocrlf` set to
+`false`, `true` and `input`.
+
 Use `harness/scenarios` and `model/protocols` / `model/validators` for new models,
 `infra/targets` with `data/repo_packs` for repositories, and `infra/platforms` with
 `data/platform_packs` for hardware. Reuse the common AB/BA loop, cleanup and
@@ -127,6 +134,25 @@ a retained warmup image cannot substitute for the measured workload.
 
 ## Validation levels
 
+Run `python tools/validate_evidence.py` for a read-only check of every committed
+evidence bundle. [The inventory](../tools/evidence_inventory.json) declares
+campaign, template, source-import, review-summary and external-archive layouts;
+new directories and recognizable manifests require an explicit classification.
+The nightly lane runs this CPU-only check. It verifies available bytes using
+existing bundle SHA-256 maps, historical file mappings or archive SHA-256/size
+records. Historical mappings point only to preserved snapshots, never current
+implementations. Do not invent hashes or update frozen manifests to silence a
+failure.
+
+The JSON result separates structural/hash errors (nonzero exit) from unavailable
+external dependencies. Remote archives are not downloaded; if supplied at their
+declared inventory paths, their recorded size and digest are checked. A missing
+locally required hashed file is an error. Raw outputs and original source files
+not committed here remain explicitly unavailable. Successful inventory checks
+do not verify those external bytes, replay validators, qualify hardware, or
+change any campaign verdict. This inventory is editable validation policy;
+the evidence it describes remains frozen.
+
 | Level | Evidence | Scope |
 | --- | --- | --- |
 | L0 | Operator correctness | Numerical contracts, edge cases and fallbacks |
@@ -173,8 +199,22 @@ Keep the existing four lanes:
 | --- | --- |
 | [Draft](../.github/workflows/ci-draft.yml) | Lint and lightweight CPU smoke |
 | [Ready](../.github/workflows/ci-ready.yml) | Full repository checks for PRs |
-| [Merge](../.github/workflows/ci-merge.yml) | Lightweight manifest check on main |
+| [Merge](../.github/workflows/ci-merge.yml) | Manifest check and lightweight CPU smoke on main |
 | [Nightly](../.github/workflows/ci-nightly.yml) | Scheduled lint/tests and evidence layout |
+
+Ready CI also builds the source distribution and wheel, installs the wheel with
+the optional `skills` parser in a fresh virtual environment, and runs
+`tests/check_installed.py` outside the checkout with `PYTHONPATH` unset and Python
+isolated mode enabled. This checks packaged knowledge, skill bodies, licenses,
+helpers and CLI reads without installing any inference engine.
+The ready test and installed-package jobs cover the declared minimum Python
+3.10 alongside Python 3.11. This matrix does not certify later Python releases
+or accelerator runtime compatibility.
+
+The merge lane runs the same small smoke selection as draft on every main push,
+including direct pushes. It is a post-push safety check, not a branch-protection
+rule or a substitute for the full ready checks before merging. Required checks
+and permission to push directly remain repository-owner settings.
 
 Do not add default model downloads, GPU jobs or campaign thresholds to these
 lanes. Dependency drift and hardware qualification require their own evidence.
