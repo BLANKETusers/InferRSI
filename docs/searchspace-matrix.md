@@ -357,3 +357,17 @@ does not certify backend compatibility.
 No measured or green coverage is credited. This adds no SSD, Network or OS
 capability and does not retest the existing offload mechanism. `common` indexes
 framework guidance without certifying backend compatibility.
+
+## DeepInfer bounded source guidance
+
+| Resource | Stage / named mechanism | Canonical owner | Evidence boundary |
+|---|---|---|---|
+| Accelerator | Diagnose / Configure / Verify: configured-width DFlash drafts versus budgeted verification rows; lagged CPU totals and GPU ZOS per-request metadata correction | [budget-speculative-verification](../src/inferrsi/data/skill_library/repositories/deepinfer/budget-speculative-verification/SKILL.md) | Source constraints and cost objective, not sampling-distribution proof, dispatch qualification or measured gain |
+| Accelerator / RAM / Host | Diagnose / Configure / Verify: retained query dependency closure, separately preserved full-layout KV, SWA valid-state bounds and nested ring-sizing gates | [bound-windowed-attention-replay](../src/inferrsi/data/skill_library/repositories/deepinfer/bound-windowed-attention-replay/SKILL.md) | Model-specific boundary/rollback/cache contract; native equivalence and resource measurements unrun |
+| RAM / Host | Observe / Diagnose / Verify: host work overlap, one-step retained state, repair and drain obligations | [Existing host-overhead owner case](../src/inferrsi/data/skill_library/hardware/host/host-overhead-optimization/references/deepinfer-zero-overhead-scheduling.md) | Source-level schedule, no reproduced host-gap reduction or complete-service latency result |
+
+These rows add source-derived procedure guidance; native execution and measured
+gains remain unverified. They do not add measured resource coverage:
+local host scheduling and source references to collectives do not establish new
+SSD, Network or OS-control coverage. Backend and production-service scope remain
+separate from the public release's inspected code paths.

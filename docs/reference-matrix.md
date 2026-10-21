@@ -335,3 +335,16 @@ The generated abstract is a projection, not independent corroboration.
 The existing Diffusers offload card retains its earlier source pin. This bounded
 invocation readset does not establish caller serialization, general thread safety
 or exception cleanup. The generated abstract adds discovery, not corroboration.
+
+## DeepInfer source extraction
+
+| Source / revision | Inspected scope | Reuse, extraction and limits |
+|---|---|---|
+| deepseek-ai/DeepInfer @ `8b16149741a4935e1dec8cea27853f273b374c5b` (Apache-2.0; direct vendors retain separate licenses) | Bounded DFlash producer/verification budget, scheduler confidence/round counters, worker ZOS metadata repair, YoCo boundary/full-layout KV, SWA metadata/ring sizing and released serving hooks; selected test/harness source | Two source-derived candidates: [verification budget](../src/inferrsi/data/skill_library/repositories/deepinfer/budget-speculative-verification/SKILL.md), [bounded query replay](../src/inferrsi/data/skill_library/repositories/deepinfer/bound-windowed-attention-replay/SKILL.md); reuse [host scheduling case](../src/inferrsi/data/skill_library/hardware/host/host-overhead-optimization/references/deepinfer-zero-overhead-scheduling.md) and [capability audit](../src/inferrsi/data/skill_library/methods/repository-evolution-analysis/references/capability-presence-audit.md). Their F labels mean pinned CODE, P means proposed procedure; test/harness reading is not execution. Native/model/device/sampling/quality/performance not_run. |
+
+The source-reading bundle preserves six direct vendor snapshots but omits nine
+media assets and ten nested gitlinks. Parent-code observations do not certify
+those dependencies, a build-complete checkout or a complete serving system.
+The three peer cards summarize related source observations; generated abstracts
+point to the complete procedures. Neither independently corroborates or promotes
+the candidate mechanisms.

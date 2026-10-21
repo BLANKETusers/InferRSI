@@ -1,6 +1,6 @@
 # InferRSI skill library
 
-The English-only library contains **76 skill documents**: 55 registered skills
+The English-only library contains **78 skill documents**: 57 registered skills
 and 21 engine and research-router skills. Complete procedures, metadata,
 references, cases and source notices ship with the package.
 
@@ -20,7 +20,7 @@ existing resource directory.
 
 ## Read registered skills
 
-[`skill-index.json`](skill-index.json) maps 55 stable skill IDs to their canonical
+[`skill-index.json`](skill-index.json) maps 57 stable skill IDs to their canonical
 paths and backend scopes. Install the optional `skills` extra for these commands:
 
 ```bash
@@ -53,7 +53,7 @@ loading and host placement remain with their existing owners.
 
 Five repository entry skills, 15 focused sub-skills and one research router
 provide source-grounded procedures. These 21 documents are available through
-the links and catalog records below, separately from the 55-ID registry.
+the links and catalog records below, separately from the 57-ID registry.
 The registered ComfyUI and stable-diffusion.cpp audits are listed alongside
 these imports and use generated abstracts rather than runtime repository packs.
 
