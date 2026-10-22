@@ -11,6 +11,8 @@ import yaml
 from tools.check_knowledge_model_policy import (
     APPROVAL,
     DECLARATION,
+    EXIT_COMPLIANT,
+    EXIT_RERUN,
     GitHub,
     approved,
     assemble_file_pages,
@@ -19,12 +21,14 @@ from tools.check_knowledge_model_policy import (
     check_pr,
     check_prs,
     declaration,
+    exit_code,
     file_page_numbers,
     json_block,
     matching,
     model_errors,
     refresh_event,
     snapshot,
+    summarize,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -251,18 +255,32 @@ def test_newest_approval_revoke_edit_or_invalid_block_does_not_reuse_history(pol
     assert not approved([], policy, set(), 123, HEAD, "exception", {KNOWLEDGE})
 
 
-def test_policy_relaxation_uses_base_policy_and_requires_separate_approval(policy):
+def test_policy_paths_are_reported_not_gated_by_a_separate_approval(policy):
     item = pr(declared([attribution("unapproved-model")]))
     result = assess(item, {KNOWLEDGE, CONTROL}, policy)
-    assert len(result["errors"]) == 2
+    # The knowledge part still fails; the policy part adds no gate of its own.
+    assert len(result["errors"]) == 1
     assert result["state"] == "failure"
-    # PR 内容中声称的 policy 不是 assess 的可信输入。
+    assert result["policy_paths"] == [CONTROL]
+    # A policy claimed in the PR body is not a trusted input to assess.
     item["body"] += '\nProposed policy: {"protected_paths": [], "models": {}}'
     assert assess(item, {KNOWLEDGE, CONTROL}, policy)["state"] == "failure"
-    result = assess(pr(), {CONTROL}, policy,
-                    [approval({CONTROL}, kind="policy-change")], {"contributor"})
-    assert result["state"] == "success"
-    assert assess(pr(), {CONTROL}, policy)["state"] == "failure"
+    # A policy-only change neither needs a policy-change approval nor is excused from it.
+    assert assess(pr(), {CONTROL}, policy)["state"] == "success"
+    assert assess(pr(), {CONTROL}, policy,
+                  [approval({CONTROL}, kind="policy-change")],
+                  {"contributor"})["state"] == "success"
+    assert assess(pr(), {CONTROL}, policy)["policy_paths"] == [CONTROL]
+
+
+def test_policy_change_comment_never_grants_an_exception(policy):
+    value = declared([attribution("unknown", "unknown")])
+    value["exception"] = {"paths": [KNOWLEDGE], "reason": "Bounded exception"}
+    item = pr(value)
+    stale = approval({KNOWLEDGE}, kind="policy-change", reason="Bounded exception")
+    assert assess(item, {KNOWLEDGE}, policy, [stale], {"contributor"})["state"] == "failure"
+    assert assess(item, {KNOWLEDGE}, policy, [approval({KNOWLEDGE})],
+                  {"contributor"})["state"] == "success"
 
 
 def test_snapshot_refreshes_on_body_head_and_base_changes():
@@ -289,7 +307,7 @@ def test_workflow_never_executes_pr_code_and_refreshes_metadata_and_base():
     value = yaml.safe_load(
         (ROOT / ".github/workflows/knowledge-model-policy.yml").read_text(encoding="utf-8")
     )
-    events = value[True]  # PyYAML 的 YAML 1.1 将 on 解析为布尔键。
+    events = value[True]  # PyYAML's YAML 1.1 parses `on` as a boolean key.
     assert set(events) == {"pull_request_target", "issue_comment", "push", "workflow_dispatch"}
     assert "edited" in events["pull_request_target"]["types"]
     assert "closed" in events["pull_request_target"]["types"]
@@ -305,6 +323,11 @@ def test_workflow_never_executes_pr_code_and_refreshes_metadata_and_base():
     steps = value["jobs"]["declarations"]["steps"]
     assert steps[0]["with"] == {"ref": "main", "persist-credentials": False}
     assert all("pip install" not in step.get("run", "") for step in steps)
+    assert steps[-1]["run"] == "bash tools/run_knowledge_model_policy.sh"
+    runner = (ROOT / "tools/run_knowledge_model_policy.sh").read_text(encoding="utf-8")
+    # The runner refetches trusted main and reruns only for the stale-base exit code.
+    assert "git fetch --quiet origin main" in runner
+    assert "--policy-sha" in runner and 'status" -ne 2' in runner
     assert "pull_request.head" not in json.dumps(value)
     assert "knowledge-model-policy" not in (
         ROOT / ".github/workflows/ci-ready.yml"
@@ -313,9 +336,10 @@ def test_workflow_never_executes_pr_code_and_refreshes_metadata_and_base():
 
 @pytest.fixture
 def api_fixture():
-    # 本机 HTTP fixture 使用真实 GitHub adapter，记录实际 POST 的共享 status。
+    # A local HTTP fixture drives the real GitHub adapter and records the shared status POSTs.
     state = {"prs": {123: pr()}, "comments": {}, "statuses": [], "requests": [],
-             "before_request": None, "errors": []}
+             "before_request": None, "errors": [], "base": BASE, "fail": lambda route: False,
+             "pulls_scans": 0}
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):
@@ -335,9 +359,13 @@ def api_fixture():
             parsed = urlsplit(self.path)
             route = parsed.path.removeprefix("/repos/example/repository/")
             state["requests"].append(("GET", route))
+            if state["fail"](route):
+                self.send_error(503)
+                return
             if state["before_request"]:
                 state["before_request"](route)
             if route == "pulls":
+                state["pulls_scans"] += 1
                 values = [p for p in state["prs"].values() if p["state"] == "open"]
                 query = parse_qs(parsed.query)
                 if "base" in query:
@@ -347,7 +375,7 @@ def api_fixture():
                          if len(values) > page * 100 else None)
                 self.respond(values[(page - 1) * 100:page * 100], links)
             elif route == "git/ref/heads/main":
-                self.respond({"object": {"sha": BASE}})
+                self.respond({"object": {"sha": state["base"]}})
             elif route.startswith("pulls/"):
                 parts = route.split("/")
                 number = int(parts[1])
@@ -414,7 +442,7 @@ def test_api_exception_for_one_pr_cannot_green_another(api_fixture, policy, orde
     value = declared([attribution("unknown", "unknown")])
     value["exception"] = {"paths": [KNOWLEDGE], "reason": "Bounded exception"}
     state["prs"] = {123: pr(value), 124: {**pr(value), "number": 124}}
-    # 两处都有同一个 comment，但其中的批准明确只覆盖 PR 123。
+    # Both PRs carry the same comment, but that approval covers PR 123 only.
     state["comments"] = {123: [approval({KNOWLEDGE})], 124: [approval({KNOWLEDGE})]}
     assert all(r["state"] == "failure" for r in check_prs(api, policy, BASE, False, order))
     assert latest_status(state)["state"] == "failure"
@@ -497,7 +525,7 @@ def test_api_batch_bounds_open_list_requests_across_pages(api_fixture, policy):
     results = check_prs(api, policy, BASE, False)
     assert {r["pull_request"] for r in results} == set(range(120, 126))
     assert all(r["state"] == "success" for r in results)
-    assert state["requests"].count(("GET", "pulls")) == 4  # 两次扫描，每次两页。
+    assert state["requests"].count(("GET", "pulls")) == 4  # Two scans, two pages each.
 
 
 @pytest.mark.parametrize("change", ["body", "approval"])
@@ -522,3 +550,350 @@ def test_api_batch_revalidates_earlier_pr_before_publication(api_fixture, policy
     assert [r["state"] for r in results] == ["failure", "success"]
     assert latest_status(state)["state"] == "failure"
     assert latest_status(state, "c" * 40)["state"] == "success"
+
+
+def test_api_merge_during_evaluation_publishes_nothing_to_the_merged_head(api_fixture, policy):
+    api, state = api_fixture
+
+    def merge(route):
+        if route == "pulls/123/files":
+            state["prs"][123]["state"] = "closed"
+
+    state["before_request"] = merge
+    results = check_prs(api, policy, BASE, False, [123])
+    assert [r["kind"] for r in results] == ["closed"]
+    assert state["statuses"] == []
+    assert exit_code(results) == EXIT_COMPLIANT
+
+
+def test_api_base_advance_defers_instead_of_failing_the_captured_head(api_fixture, policy):
+    api, state = api_fixture
+    state["base"] = "e" * 40
+    results = check_prs(api, policy, BASE, False, [123])
+    assert [r["kind"] for r in results] == ["deferred"]
+    assert results[0]["rerun"] is True
+    # Open work stays fail-closed, but the published status never claims a declaration verdict.
+    assert latest_status(state)["state"] == "failure"
+    assert latest_status(state)["description"] == "Evaluation deferred"
+    assert exit_code(results) == EXIT_RERUN
+    # A rerun against the advanced main publishes the real verdict.
+    assert check_pr(api, 123, policy, "e" * 40, False)["state"] == "success"
+    assert latest_status(state)["state"] == "success"
+
+
+def test_api_closed_target_keeps_historical_status_and_reopen_reevaluates(api_fixture, policy):
+    api, state = api_fixture
+    assert check_pr(api, 123, policy, BASE, False)["state"] == "success"
+    state["prs"][123]["state"] = "closed"
+    result = check_pr(api, 123, policy, BASE, False)
+    assert result["kind"] == "closed"
+    assert len(state["statuses"]) == 1  # The earlier verdict is not rewritten.
+    state["prs"][123]["state"] = "open"
+    state["prs"][123]["body"] = None
+    assert check_pr(api, 123, policy, BASE, False)["state"] == "failure"
+    assert latest_status(state)["state"] == "failure"
+
+
+def test_api_peer_sharing_a_merged_head_keeps_its_own_verdict(api_fixture, policy):
+    api, state = api_fixture
+    state["prs"][124] = {**pr(), "number": 124}
+    results = check_prs(api, policy, BASE, False, [123, 124])
+    assert [(r["pull_request"], r["kind"]) for r in results] == [(123, "noncompliant"),
+                                                                (124, "noncompliant")]
+    assert "shared heads" in results[0]["errors"][0]
+    assert latest_status(state)["state"] == "failure"
+    # One peer closes: the merged PR is dropped from the sweep and the survivor keeps the head
+    # under a fresh evaluation instead of inheriting the shared-head refusal.
+    state["prs"][123]["state"] = "closed"
+    results = check_prs(api, policy, BASE, False, [123, 124])
+    assert [(r["pull_request"], r["kind"]) for r in results] == [(123, "closed"),
+                                                                (124, "compliant")]
+    assert latest_status(state)["state"] == "success"
+
+
+def test_api_batch_separates_rejection_from_lifecycle_outcomes(api_fixture, policy):
+    api, state = api_fixture
+    state["prs"][124] = separate_pr(124, "c" * 40)
+    state["prs"][124]["body"] = None
+    state["prs"][125] = separate_pr(125, "d" * 40)
+    state["prs"][125]["state"] = "closed"
+    results = check_prs(api, policy, BASE, False, [123, 124, 125])
+    kinds = {r["pull_request"]: r["kind"] for r in results}
+    assert kinds == {123: "compliant", 124: "noncompliant", 125: "closed"}
+    assert latest_status(state)["state"] == "success"
+    assert latest_status(state, "c" * 40)["state"] == "failure"
+    assert all(s["sha"] != "d" * 40 for s in state["statuses"])
+    summary = summarize(results)
+    assert summary == {"kind_counts": {"compliant": 1, "noncompliant": 1, "evaluator-error": 0,
+                                       "unverified": 0, "deferred": 0, "closed": 1,
+                                       "advanced": 0, "publication-failed": 0,
+                                       "invalidation-failed": 0},
+                       "results": 3, "failed": 1, "noncompliant_pull_requests": [124],
+                       "execution": "ok", "rerun": False}
+    # A per-PR rejection keeps that PR red; it does not fail the sweep.
+    assert exit_code(results) == EXIT_COMPLIANT
+    assert exit_code([r for r in results if r["kind"] == "compliant"]) == EXIT_COMPLIANT
+
+
+@pytest.mark.parametrize("mutation", ["body", "approval", "head", "metadata-error"])
+def test_api_old_green_cannot_survive_a_broken_publication_read(api_fixture, policy, mutation):
+    api, state = api_fixture
+    if mutation == "approval":
+        value = declared([attribution("unknown", "unknown")])
+        value["exception"] = {"paths": [KNOWLEDGE], "reason": "Bounded exception"}
+        state["prs"][123] = pr(value)
+        state["comments"][123] = [approval({KNOWLEDGE})]
+    assert check_pr(api, 123, policy, BASE, False)["state"] == "success"
+    assert latest_status(state)["state"] == "success"
+    # The declaration becomes invalid, and the publication-time collection read fails while
+    # individual reads and status POST still work.
+    state["pulls_scans"] = 0
+    if mutation == "body":
+        state["prs"][123]["body"] = None
+    elif mutation == "approval":
+        state["comments"][123] = []
+    if mutation == "head":
+        # The head moves after the evaluation pass, before publication re-reads it.
+        def advance(route):
+            if route == "pulls" and state["pulls_scans"] == 1:
+                state["prs"][123]["head"] = {"sha": "d" * 40}
+        state["before_request"] = advance
+        state["fail"] = lambda route: False
+    else:
+        state["fail"] = lambda route: route == "pulls" and state["pulls_scans"] >= 1
+    results = check_prs(api, policy, BASE, False, [123])
+    head = state["prs"][123]["head"]["sha"]
+    if mutation == "head":
+        # The old head keeps its historical green; the new head has no verdict until a rerun.
+        assert results[0]["kind"] == "deferred"
+        assert latest_status(state)["state"] == "success"
+        assert all(s["sha"] != head for s in state["statuses"])
+        assert exit_code(results) == EXIT_RERUN
+        return
+    # The invariant under test: the effective status of the current head is not the old green.
+    assert results[0]["state"] == "failure"
+    assert latest_status(state, head)["state"] == "failure"
+    if mutation == "metadata-error":
+        assert results[0]["kind"] == "unverified"
+        assert exit_code(results) == EXIT_RERUN
+    else:
+        # A superseded declaration is this PR's own rejection, not a sweep failure.
+        assert results[0]["kind"] == "noncompliant"
+        assert exit_code(results) == EXIT_COMPLIANT
+
+
+def test_api_old_green_cannot_survive_metadata_mutation_and_exhausted_retries(
+        api_fixture, policy):
+    api, state = api_fixture
+    assert check_pr(api, 123, policy, BASE, False)["state"] == "success"
+
+    def mutate_premise(route):
+        if route == "pulls":
+            state["prs"][123]["body"] = None
+
+    state["before_request"] = mutate_premise
+    results = check_prs(api, policy, BASE, False, [123])
+    # The first successful evaluation is superseded; the reassessment against current metadata
+    # records the real rejection instead of leaving the old green in place.
+    assert [r["kind"] for r in results] == ["noncompliant"]
+    assert latest_status(state)["state"] == "failure"
+    assert exit_code(results) == EXIT_COMPLIANT
+
+
+def test_api_peer_closing_during_the_same_sweep_reassesses_the_survivor(api_fixture, policy):
+    api, state = api_fixture
+    state["prs"][124] = {**pr(), "number": 124}
+
+    def close_peer(route):
+        # The peer leaves after it was seen sharing the head in the evaluation pass and before
+        # the publication-pass collection read completes.
+        if route == "pulls" and state["read"]:
+            state["prs"][123]["state"] = "closed"
+
+    state["read"] = []
+    original = api.get
+
+    def tracking_get(path):
+        if path == "pulls/123":
+            state["read"].append(path)
+        return original(path)
+
+    api.get = tracking_get
+    state["before_request"] = close_peer
+    results = check_prs(api, policy, BASE, False, [123, 124])
+    kinds = {r["pull_request"]: r["kind"] for r in results}
+    # The staged shared-head refusal is invalidated: the surviving PR is assessed on its own.
+    assert kinds == {123: "closed", 124: "compliant"}
+    assert latest_status(state)["state"] == "success"
+
+
+def test_api_real_shared_head_still_blocks_green_across_bases(api_fixture, policy):
+    api, state = api_fixture
+    state["prs"][124] = {**pr(), "number": 124, "base": {"ref": "release", "sha": BASE}}
+    results = check_prs(api, policy, BASE, False, [123])
+    assert [r["kind"] for r in results] == ["noncompliant"]
+    assert all(s["state"] != "success" for s in state["statuses"])
+    # The rejected PR is red; the sweep itself completed.
+    assert exit_code(results) == EXIT_COMPLIANT
+
+
+def test_api_compliant_and_noncompliant_prs_are_judged_separately(api_fixture, policy):
+    api, state = api_fixture
+    state["prs"][124] = separate_pr(124, "c" * 40)
+    state["prs"][124]["body"] = None
+    results = check_prs(api, policy, BASE, False, [123, 124])
+    kinds = {r["pull_request"]: r["kind"] for r in results}
+    # A stays green, B stays red, and B's rejection does not turn A's check into an error.
+    assert kinds == {123: "compliant", 124: "noncompliant"}
+    assert latest_status(state)["state"] == "success"
+    assert latest_status(state, "c" * 40)["state"] == "failure"
+    summary = summarize(results)
+    assert summary["noncompliant_pull_requests"] == [124]
+    assert summary["execution"] == "ok"
+    assert exit_code(results) == EXIT_COMPLIANT
+
+
+def test_api_sweep_errors_still_fail_the_run(api_fixture, policy):
+    api, state = api_fixture
+    state["prs"][124] = separate_pr(124, "c" * 40)
+    state["fail"] = lambda route: route == "pulls/124/files"
+    results = check_prs(api, policy, BASE, False, [123, 124])
+    kinds = {r["pull_request"]: r["kind"] for r in results}
+    assert kinds == {123: "compliant", 124: "unverified"}
+    summary = summarize(results)
+    # An evaluator error is never reported as a per-PR verdict or as a clean sweep; it is
+    # either unfinished (retryable) or failed, never "ok".
+    assert summary["execution"] in {"failed", "unfinished"}
+    assert summary["noncompliant_pull_requests"] == []
+    assert exit_code(results) != EXIT_COMPLIANT
+
+
+def test_policy_runner_is_reported_as_a_control_path(policy):
+    runner = "tools/run_knowledge_model_policy.sh"
+    assert runner in json.loads((ROOT / CONTROL).read_text(encoding="utf-8"))["policy_paths"]
+    item = pr()
+    result = assess(item, {runner}, policy)
+    # Reporting only: the runner is classified as a control path and does not become a gate.
+    assert result["state"] == "success"
+    assert result["policy_paths"] == [runner]
+    assert result["description"] == "Declaration compliance only"
+
+
+def test_api_failed_approval_read_on_publication_does_not_escape(api_fixture, policy):
+    api, state = api_fixture
+    value = declared([attribution("unknown", "unknown")])
+    value["exception"] = {"paths": [KNOWLEDGE], "reason": "Bounded exception"}
+    state["prs"][123] = pr(value)
+    state["comments"][123] = [approval({KNOWLEDGE})]
+    assert check_pr(api, 123, policy, BASE, False)["state"] == "success"
+    # The approval read required by the publication premise now fails. No exception escapes,
+    # nothing is published from stale approvals, and the result asks for the runner retry.
+    reads = {"count": 0}
+
+    def fail_second_read(path):
+        if path == "issues/123/comments":
+            reads["count"] += 1
+            return reads["count"] >= 2
+        return False
+
+    state["fail"] = fail_second_read
+    results = check_prs(api, policy, BASE, False, [123])
+    assert [r["kind"] for r in results] == ["unverified"]
+    assert results[0]["rerun"] is True
+    assert exit_code(results) == EXIT_RERUN
+
+
+@pytest.mark.parametrize("route", ["pulls/123", "git/ref/heads/main"])
+def test_api_failed_initial_reads_do_not_escape(api_fixture, policy, route):
+    api, state = api_fixture
+    state["fail"] = lambda path: path == route
+    result = check_pr(api, 123, policy, BASE, False)
+    assert result["state"] == "failure"
+    assert result["kind"] in {"unverified", "evaluator-error"}
+    assert result["rerun"] is True
+    if route == "pulls/123":
+        # The target could not be read, so nothing is written to a head that may be merged.
+        assert state["statuses"] == []
+    else:
+        # The target was confirmed open at an unchanged head, so the old success is not kept:
+        # an explicit evidence-unavailable failure is published.
+        assert latest_status(state)["state"] == "failure"
+
+
+def test_api_survivor_closing_during_reassessment_publishes_nothing(api_fixture, policy):
+    api, state = api_fixture
+    state["prs"][124] = {**pr(), "number": 124}
+
+    def close_peer_and_survivor(route):
+        # A closes after the shared head was staged; B then closes while it is re-evaluated.
+        if route == "pulls" and state["read"]:
+            state["prs"][123]["state"] = "closed"
+        if route == "pulls/124/files":
+            state["prs"][124]["state"] = "closed"
+
+    state["read"] = []
+    original = api.get
+
+    def tracking_get(path):
+        if path == "pulls/123":
+            state["read"].append(path)
+        return original(path)
+
+    api.get = tracking_get
+    state["before_request"] = close_peer_and_survivor
+    results = check_prs(api, policy, BASE, False, [123, 124])
+    kinds = {r["pull_request"]: r["kind"] for r in results}
+    assert kinds == {123: "closed", 124: "closed"}
+    # Nothing is published to the old shared head, including no failure.
+    assert state["statuses"] == []
+
+
+def test_api_head_change_during_reassessment_publishes_nothing(api_fixture, policy):
+    api, state = api_fixture
+    state["prs"][124] = {**pr(), "number": 124}
+
+    def advance_survivor(route):
+        if route == "pulls" and state["read"]:
+            state["prs"][123]["state"] = "closed"
+        if route == "pulls/124/files":
+            state["prs"][124]["head"] = {"sha": "d" * 40}
+
+    state["read"] = []
+    original = api.get
+
+    def tracking_get(path):
+        if path == "pulls/123":
+            state["read"].append(path)
+        return original(path)
+
+    api.get = tracking_get
+    state["before_request"] = advance_survivor
+    results = check_prs(api, policy, BASE, False, [123, 124])
+    kinds = {r["pull_request"]: r["kind"] for r in results}
+    assert kinds == {123: "closed", 124: "advanced"}
+    assert all(s["sha"] != "d" * 40 for s in state["statuses"])
+
+
+def test_rerun_is_requested_without_a_second_inner_retry(api_fixture, policy):
+    api, state = api_fixture
+    state["prs"][124] = {**pr(), "number": 124}
+    state["prs"][124]["head"] = {"sha": "c" * 40}
+    before = state["pulls_scans"]
+    results = check_prs(api, policy, BASE, False)
+    # A single sweep: one collection read per pass, regardless of result kinds.
+    assert state["pulls_scans"] - before == 2
+    assert {r["pull_request"] for r in results} == {123, 124}
+    assert all(r["rerun"] is False for r in results)
+
+
+def test_api_historical_policy_change_comment_is_inert(api_fixture, policy):
+    api, state = api_fixture
+    value = declared([attribution("unknown", "unknown")])
+    value["exception"] = {"paths": [KNOWLEDGE], "reason": "Bounded exception"}
+    state["prs"][123] = pr(value)
+    state["comments"][123] = [approval({KNOWLEDGE}, kind="policy-change",
+                                       reason="Bounded exception")]
+    result = check_pr(api, 123, policy, BASE, False)
+    assert result["state"] == "failure"
+    assert result["kind"] == "noncompliant"
+    assert latest_status(state)["state"] == "failure"
