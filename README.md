@@ -8,7 +8,7 @@
 [![CLI](https://img.shields.io/badge/Interface-CLI-14B8A6?style=flat-square)](docs/quickstart.md)
 [![vLLM-Omni PR](https://img.shields.io/badge/vLLM--Omni-Upstream_PR-8B5CF6?style=flat-square)](https://github.com/vllm-project/vllm-omni/pull/8739)
 
-[Why InferRSI](#why-inferrsi) · [Results](#results) · [Quickstart](#quickstart) · [Architecture](#architecture) · [Docs](#docs)
+[Why InferRSI](#why-inferrsi) · [How It Works](#how-it-works) · [Results](#results) · [Quickstart](#quickstart) · [Architecture](#architecture) · [Docs](#docs)
 
 </div>
 
@@ -23,6 +23,29 @@ InferRSI is a **CLI workbench for inference optimization with coding agents**. B
 - **Keep the lessons.** Search prior experience and export cited context for Codex or other coding agents.
 
 You drive profiling and code changes; InferRSI runs and evaluates the benchmark and validation commands you provide.
+
+<a id="how-it-works"></a>
+
+## 🔁 How It Works
+
+**Optimize with evidence. Reuse reviewed lessons.** Humans and coding agents
+prepare candidates; Workbench runs controlled comparisons against the target
+engine. Evidence guides the next experiment and may inform reusable knowledge,
+including limitations from failed attempts.
+[Architecture](#architecture) · [Roadmap](https://github.com/InferMatrixLab/InferRSI/issues/61).
+
+<a href="docs/assets/inferrsi-loop.mp4">
+  <picture>
+    <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/inferrsi-loop.png">
+    <img src="docs/assets/inferrsi-loop.gif" alt="InferRSI experiment and knowledge loops: humans or coding agents declare a task; Workbench compares an external target engine; evidence supports another experiment and optional reviewed lessons; candidate storage requires separate authorization" width="1280">
+  </picture>
+</a>
+
+Illustrative target workflow; no measured results. [Watch the MP4](docs/assets/inferrsi-loop.mp4).
+
+Knowledge retrieval is read-only; candidate storage is optional and separately
+authorized. Automatic search and automatic knowledge promotion remain planned. Missing
+or incomplete evidence stays `INCONCLUSIVE`.
 
 ## Choose your starting path
 
