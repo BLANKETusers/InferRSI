@@ -16,8 +16,8 @@
   "sources": [
     {
       "type": "git",
-      "url": "https://github.com/InferMatrixLab/InferRSI/blob/32c14f55c9d95524d8b1e8e6be55064ee27a1186/src/inferrsi/data/skill_library/workflows/competitor-scan/SKILL.md",
-      "commit": "32c14f55c9d95524d8b1e8e6be55064ee27a1186",
+      "url": "https://github.com/InferMatrixLab/InferRSI/blob/bbe85d53c4acbbabaa378b2971f130f7441311cb/src/inferrsi/data/skill_library/workflows/competitor-scan/SKILL.md",
+      "commit": "bbe85d53c4acbbabaa378b2971f130f7441311cb",
       "paths": [
         "src/inferrsi/data/skill_library/skill-index.json",
         "src/inferrsi/data/skill_library/workflows/competitor-scan/SKILL.md"
