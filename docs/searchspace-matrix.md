@@ -413,3 +413,13 @@ prefix-KV host/storage policy, and multimodal_gen diffusion stage/instance,
 component-use and timeout/job-finalizer lifetimes. This adds routing only.
 Common indexing is not CUDA/NPU qualification; process transport/IPC is not new
 Network coverage. Existing resource cells and maturity boundaries remain unchanged.
+
+## Hopper kernel reasoning (source-derived)
+
+| Resource | Stage / named mechanism | Canonical owner | Evidence boundary |
+| --- | --- | --- | --- |
+| Accelerator | Observe / Diagnose / Configure / Verify: TMA full/empty stage ownership and parity, WGMMA group completion and SS/RS layouts, register/SMEM/epilogue budgets, software persistent scheduling and FP8 scale/promotion contracts | [reason-hopper-kernels](../src/inferrsi/data/skill_library/hardware/cuda/reason-hopper-kernels/SKILL.md), with [systematic source selection](../src/inferrsi/data/skill_library/hardware/cuda/reason-hopper-kernels/references/sources.md) | Candidate mechanisms qualified by selected pinned code and versioned documentation; remaining source bodies unmined, Blackwell-only recipes excluded. No GPU compilation, accuracy, profiling or performance run. |
+
+This adds conditional Hopper guidance without new measured or green coverage.
+Registers, SMEM and HBM remain device resources; local CTA/cluster coordination
+and tile scheduling add no RAM/Host, SSD, Network or OS-control coverage.
