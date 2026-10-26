@@ -105,6 +105,16 @@ It preserves document versus implementation evidence, source/recipe dates and
 attribution, and different mutation, completion and measurement boundaries.
 The two sources do not establish a tested combined runtime stack.
 
+### TensorRT-LLM retained source responsibilities
+
+The [source and shared-assumption map](../src/inferrsi/data/skill_library/README.md#tensorrt-llm-source-and-responsibility-routing)
+connects the historical `f33e0e5fd` skill-document row to the separately pinned
+`c9b18eefa731dc59b0091bdfff6d890aa9d1e98e` PD/KV-transfer peer card.
+It distinguishes startup and request-time denominators, local H2D and network
+transport, and the workload/layout/resource controls needed for a PD comparison.
+Original prefix precision, missing methodology inspection dates, mixed-source
+attribution, owner readsets and candidate/imported limits remain unchanged.
+
 ### Reviewed systems-paper mechanisms
 
 `mined` below means pack-mediated extraction into the linked candidate artifacts.
