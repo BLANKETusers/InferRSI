@@ -248,6 +248,10 @@
     "splash": {
       "path": "repositories/splash",
       "backend": "common"
+    },
+    "lily": {
+      "path": "repositories/lily",
+      "backend": "common"
     }
   }
 }

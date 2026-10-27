@@ -413,3 +413,8 @@ source maps, notices and imported/candidate states stay with their owners.
 | Source / revision | Inspected scope | Reuse, extraction and limits |
 | --- | --- | --- |
 | incoai/splash @ `39a97385f8560cf8a93972cec9b0a963c9195250`; AREX method @ `ac3fe1afa80fb9a09775ecfb2b6cc3ba850a2db6` | Selected format/memory planning, scheduler/cache/state/persistence, API/security/protocol, DFlash2/ANE/numerical and benchmark contracts | [Splash graph](../src/inferrsi/data/skill_library/repositories/splash/SKILL.md) with bounded file hashes, three safe offline helpers and retained notices. Actual compatible-agent portable workflow with user-approved native/source-module adaptation. Python checks are not Metal/ANE/model/disk-state or service qualification; required native evidence remains blocked. Source Apache-2.0 and third-party notices are independent of the `NO_LICENSE` unauthenticated-CLI fallback. |
+## Lily portable AREX extraction
+
+| Source / revision | Inspected scope | Reuse, extraction and limits |
+| --- | --- | --- |
+| perplexityai/pplx-garden `lily/` @ `1ed972ed3f0bd5616c997c9507c25616c63394fc`; AREX method @ `ac3fe1afa80fb9a09775ecfb2b6cc3ba850a2db6` | Selected exact architecture/affine packing, Metal ownership, strict API/session prefixes, native-test gating and versioned benchmark methods | [Lily graph](../src/inferrsi/data/skill_library/repositories/lily/SKILL.md), bounded hashes, safe offline helpers and Apache-2.0/NOTICE retention. Actual portable native-Rust/Metal adaptation, not a DisCo CLI/model run. Cargo/native/model/quality/performance evidence unavailable; later long-context prefill negatives and runner/report version mismatch are retained. `NO_LICENSE` is the unauthenticated resolver fallback, not a legal finding. |
