@@ -244,6 +244,10 @@
     "dwarfstar": {
       "path": "repositories/dwarfstar",
       "backend": "common"
+    },
+    "splash": {
+      "path": "repositories/splash",
+      "backend": "common"
     }
   }
 }
