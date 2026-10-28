@@ -513,3 +513,19 @@ unchanged.
 | --- | --- | --- | --- |
 | Accelerator / RAM | Diagnose / configure: parameter-only resource declarations versus runtime KV/workspace/limit origins | `mlc-llm`: [artifact-contract](../src/inferrsi/data/skill_library/repositories/mlc-llm/sub-skills/artifact-contract/SKILL.md) and [runtime-kv-limits](../src/inferrsi/data/skill_library/repositories/mlc-llm/sub-skills/runtime-kv-limits/SKILL.md) | Source/hash/declared minima only; no authenticated weights/allocator/free-memory/cache or physical-fit evidence. No measured resource coverage. |
 | Accelerator / host completion boundary | Diagnose / verify: SDK/export/prefix, runnable versus serializable module, private/staging buffers, copy/flush/wait/default-stream contracts | `mlc-llm`: [metal-build-runtime](../src/inferrsi/data/skill_library/repositories/mlc-llm/sub-skills/metal-build-runtime/SKILL.md) | Native compile/load/dispatch/sync/parity not_run. No new SSD/Network/OS control or quality/service/performance qualification. |
+
+## Flare preparation and complete-session source contracts
+
+| Resource | Stage / mechanism | Canonical owner | Evidence boundary |
+| --- | --- | --- | --- |
+| Accelerator | Diagnose / Verify: complete KV page chain plus continuation row; publish/use/retire fences, shared inbound ticket and five admission outcomes | [audit-flare-session-lifecycle](../src/inferrsi/data/skill_library/repositories/flare-local-inference/audit-flare-session-lifecycle/SKILL.md) | Fixed `bce032c014bae34502ba22d3304fa084d5b40afe` CODE/DOC/TEST-SOURCE; NVIDIA SM120/SM121 research prototype; no kernel/model/device/performance qualification |
+| RAM / Host | Diagnose / Verify: registered/staging storage lifetime through accounted transfer completion/drain; waiter cancellation does not free ticket destinations | [audit-flare-session-lifecycle](../src/inferrsi/data/skill_library/repositories/flare-local-inference/audit-flare-session-lifecycle/SKILL.md), [lifetime detail](../src/inferrsi/data/skill_library/repositories/flare-local-inference/audit-flare-session-lifecycle/references/lifecycle.md) | Source lifetime contract; no physical-RAM peak, bandwidth or pressure result |
+| SSD | Diagnose / Verify: record namespace/layout/row/chain completeness, restart/corruption versus unreadable-file handling; conditional transfer-versus-additional-prefill cost | [audit-flare-session-lifecycle](../src/inferrsi/data/skill_library/repositories/flare-local-inference/audit-flare-session-lifecycle/SKILL.md), [diagnostic detail](../src/inferrsi/data/skill_library/repositories/flare-local-inference/audit-flare-session-lifecycle/references/diagnostics.md) | No GDS implementation or measured storage gain; actual device/server tests not_run |
+| SSD / RAM / Accelerator | Startup Diagnose / Verify: Python preparation/native export ownership, nonportable live handles, execution ABI 4 versus prepared contract 2, separate phase accounting | Existing [weight-loading owner](../src/inferrsi/data/skill_library/methods/weight-loading-optimization/SKILL.md), [preparation detail](../src/inferrsi/data/skill_library/methods/weight-loading-optimization/references/flare-preparation-boundary.md) | Source-derived candidate; no preparation/runtime execution or Python-to-Rust performance-causation claim |
+
+There is no new measured/green resource cell, Network or OS coverage. Multi-rank
+source branches and tests do not qualify multi-host transport or multi-GPU
+behavior. The source-derived candidates remain empirical **not_run**; the
+[bounded evaluation plan](reviews/issue148-flare-source-distillation.md) is
+**not evaluated**.
+
