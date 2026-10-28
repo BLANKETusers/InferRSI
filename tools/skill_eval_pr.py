@@ -51,7 +51,7 @@ def blob_exists(repo, revision, path):
     return bool(git(repo, "ls-tree", revision, "--", path).strip())
 
 
-def prepare(repo, mapping_path, identity, output, *, provider=None):
+def prepare(repo, mapping_path, identity, output, *, provider=None, planning_blocked=None):
     # Read only trusted configuration and raw Git objects, never PR Python or graders.
     for key in ("base", "head", "version"):
         if not re.fullmatch(SHA, identity[key]):
@@ -93,6 +93,10 @@ def prepare(repo, mapping_path, identity, output, *, provider=None):
         # safe-ID rule here, before building any output path from it.
         if not re.fullmatch(r"[a-z0-9][a-z0-9._-]*", item["skill"]):
             raise ValueError("Unsafe skill ID in the PR case mapping")
+        if planning_blocked is not None:
+            comparisons.append({"skill": item["skill"],
+                                "unsupported": "Mapping-only scope; provider unavailable"})
+            continue
         entrypoint = mapping["skill_root"] + "/" + item["entrypoint"]
         if not blob_exists(repo, identity["head"], entrypoint):
             for entry in coverage:
@@ -134,9 +138,18 @@ def prepare(repo, mapping_path, identity, output, *, provider=None):
             "comparisons": comparisons, "model": mapping["model"], "limits": mapping["limits"],
             "estimated_calls": sum(c.get("calls", 0) for c in comparisons),
             "retention_days": RETENTION_DAYS}
+    if planning_blocked is not None:
+        plan["execution_blocked"] = planning_blocked
+        plan["model"] = {"name": "unconfigured", "effort": "not_applicable"}
     if provider is not None:
         plan["provider_config"] = provider
-        plan["reservation"] = provider_reservation(plan, now=0)
+        if plan["estimated_calls"]:
+            try:
+                plan["reservation"] = provider_reservation(plan, now=0)
+            except ValueError:
+                # Free scope reporting must survive a refused aggregate reservation.
+                # Paid admission recomputes strict bounds and never splits this plan.
+                plan["execution_blocked"] = "Complete paid reservation exceeds approved bounds"
     write_json(output / "pr-plan.json", plan)
     return plan
 
@@ -160,7 +173,7 @@ def budget(plan):
     value = {"estimated_calls": plan["estimated_calls"], "limits_per_comparison": plan["limits"],
              "comparisons": sum("plan_sha256" in c for c in plan["comparisons"])}
     if "provider_config" in plan:
-        value.update(reservation=plan["reservation"],
+        value.update(reservation=plan.get("reservation"),
                      provider_config_sha256=fingerprint(plan["provider_config"]))
     return value
 
@@ -174,6 +187,8 @@ def run_title(pr, digest):
 
 
 def authorize(plan, request, actor, permission, current):
+    if plan.get("execution_blocked"):
+        raise ValueError("Planning-only plan is blocked from paid execution")
     expected = {"plan_sha256": fingerprint(plan), "version": plan["version"],
                 "base": plan["base"], "head": plan["head"], "budget": budget(plan)}
     if permission not in ("write", "maintain", "admin") or not actor:
@@ -204,6 +219,8 @@ def claim(plan, runs, run_id, attempt):
 
 def execute(output, approval, *, client=None):
     plan = compare.read_json(output / "pr-plan.json")
+    if plan.get("execution_blocked"):
+        raise ValueError("Planning-only plan is blocked from paid execution")
     if approval["execution_id"] != execution_id(plan):
         raise ValueError("Approval belongs to another plan")
     if "provider_config" in plan:
@@ -225,7 +242,8 @@ def execute(output, approval, *, client=None):
             # Artifact downloads omit empty directories required by the executor.
             (output / item["skill"] / "results").mkdir(exist_ok=True)
             result = compare.execute(output / item["skill"], item["plan_sha256"], client=client,
-                                     stop_on_unknown_usage="provider_config" in plan)
+                                     stop_on_unknown_usage="provider_config" in plan,
+                                     require_request_authorization=client is None)
             if "provider_config" in plan and result["status"]["execution_state"] != "completed":
                 break
 
@@ -387,12 +405,19 @@ def review_guidance(plan, results, *, evidence_state):
             "evidence_state": evidence_state, "plan_sha256": fingerprint(plan)}
 
 
-def summary(plan, results, evidence_url, expires_at, now, *, evidence_state=None):
+def summary(plan, results, evidence_url, expires_at, now, *, evidence_state=None,
+            execution_control=None):
     expired = now >= expires_at
     evidence_state = ("expired" if expired else evidence_state or
                       ("available" if results else "planned / unexecuted"))
     guidance = review_guidance(plan, results, evidence_state=evidence_state)
     lines = [MARKER, "## Skill evaluation"]
+    if plan.get("execution_blocked"):
+        lines += ["", "Paid execution blocked: " + plan["execution_blocked"] + ". "
+                  "This is free planning only; no alternate provider/model is selected."]
+    if execution_control is not None:
+        lines += ["", "Automatic execution / cumulative PR budget: `"
+                  + canonical(execution_control) + "`", ""]
     lines += ["### Advisory: " + guidance["disposition"],
               "Retained evidence availability: **" + evidence_state + "**. "
               "No approval or merge authorization is issued."]
@@ -425,8 +450,8 @@ def summary(plan, results, evidence_url, expires_at, now, *, evidence_state=None
               f"**{plan['estimated_calls']}**.",
               f"Uncovered/unsupported changes: **{len(gaps)}**. Gaps never count as passes.", "",
               "Applicable only while these revisions and inputs match the current PR.",
-              "Execution requires exact plan, versions and budget approval; "
-              "not a hard provider token or monetary cap. Cost remains unknown.",
+              "Paid execution requires trusted label authorization and cumulative PR reservation. "
+              "Unknown accounting blocks new paid calls; planning is not execution.",
               "Pipeline evidence only; offline fixed outputs do not establish skill efficacy.",
               f"[Evidence and logs]({evidence_url}) · Retention: {RETENTION_DAYS} days.",
               f"Outcomes are historical; verifiable only before Unix time `{int(expires_at)}` "
@@ -669,7 +694,7 @@ class MissingEvidence(ValueError):
     """A known absent artifact, not an API access or integrity failure."""
 
 
-def artifact_zip(api, run_id, name, now):
+def artifact_download(api, run_id, name, now):
     artifacts = api.pages(f"/actions/runs/{run_id}/artifacts", "artifacts")
     selected = [a for a in artifacts if a["name"] == name]
     if not selected:
@@ -685,6 +710,15 @@ def artifact_zip(api, run_id, name, now):
     if artifact["expired"] or now >= expires:
         return None, min(expires, now)
     raw = api.request("GET", f"/actions/artifacts/{artifact['id']}/zip", binary=True)
+    if len(raw) > MAX_ARCHIVE:
+        raise ValueError("Oversized artifact download")
+    return raw, expires
+
+
+def artifact_zip(api, run_id, name, now):
+    raw, expires = artifact_download(api, run_id, name, now)
+    if raw is None:
+        return None, expires
     with zipfile.ZipFile(io.BytesIO(raw)) as zipped:
         if zipped.namelist() != ["results.zip"]:
             raise ValueError("Unexpected artifact envelope")
@@ -694,19 +728,64 @@ def artifact_zip(api, run_id, name, now):
         return zipped.read(member), expires
 
 
+def source_plan_expiry(api, run_id, plan, now):
+    """Bind automatic evidence to the trusted planner artifact from this source run.
+
+    The run's authenticated workflow identity is checked by the caller. Neither a
+    result's self-reported head nor the PR-only automatic run title is provenance.
+    Read data only; never extract or execute any file from the planning archive.
+    """
+    raw, expires = artifact_download(api, run_id, "skill-eval-plan", now)
+    if raw is None:
+        return expires
+    with zipfile.ZipFile(io.BytesIO(raw)) as zipped:
+        members = zipped.infolist()
+        names = [m.orig_filename for m in members]
+        if (len(members) > 10000 or len(names) != len(set(names))
+                or sum(m.file_size for m in members) > MAX_ARCHIVE
+                or names.count("pr-plan.json") != 1):
+            raise ValueError("Invalid source planning archive")
+        for item, name in zip(members, names):
+            path = PurePosixPath(name)
+            mode = item.external_attr >> 16
+            if (path.is_absolute() or ".." in path.parts or "\\" in name
+                    or stat.S_ISLNK(mode)
+                    or stat.S_IFMT(mode) not in (0, stat.S_IFREG, stat.S_IFDIR)):
+                raise ValueError("Unsafe source planning archive member")
+        member = members[names.index("pr-plan.json")]
+        mode = member.external_attr >> 16
+        if (member.file_size > 4_000_000 or stat.S_ISLNK(mode)
+                or stat.S_IFMT(mode) not in (0, stat.S_IFREG)):
+            raise ValueError("Invalid source plan member")
+        original = json.loads(zipped.read(member))
+    if fingerprint(original) != fingerprint(plan):
+        raise ValueError("Source execution plan does not match current PR plan")
+    return expires
+
+
 def publish_retained(api, output, source_run, writer_run, now):
     plan = compare.read_json(output / "pr-plan.json")
     run = api.request("GET", f"/actions/runs/{source_run}")
-    if (run["path"] != WORKFLOW or run["event"] != "workflow_dispatch"
-            or run["display_title"] != run_title(plan["pr"], fingerprint(plan))
+    trusted_source = (run["event"] == "workflow_dispatch"
+                      and run["display_title"] == run_title(plan["pr"], fingerprint(plan)))
+    trusted_source |= (run["event"] == "pull_request_target"
+                       and run["display_title"] == f"skill-eval plan or publish PR {plan['pr']}")
+    if (run["id"] != source_run or run["path"] != WORKFLOW or not trusted_source
             or run["head_sha"] != plan["version"]
             or run["status"] != "completed" and source_run != writer_run):
         raise ValueError("Untrusted or mismatched execution workflow")
     evidence_state = "available"
+    data, expires = None, now + RETENTION_DAYS * 86400
     try:
-        data, expires = artifact_zip(api, source_run, "skill-eval-results", now)
+        if run["event"] == "pull_request_target":
+            expires = source_plan_expiry(api, source_run, plan, now)
+        if now < expires:
+            data, result_expiry = artifact_zip(api, source_run, "skill-eval-results", now)
+            expires = min(expires, result_expiry)
     except MissingEvidence:
-        data, expires, evidence_state = None, now + RETENTION_DAYS * 86400, "missing"
+        evidence_state = "missing"
+    except (ValueError, KeyError, TypeError, zipfile.BadZipFile):
+        evidence_state = "invalid"
     results = []
     if data is not None:
         try:
@@ -716,13 +795,16 @@ def publish_retained(api, output, source_run, writer_run, now):
             # Never expose artifact-controlled exception text or reuse old counts.
             evidence_state = "invalid"
     url = f"https://github.com/{plan['repository']}/actions/runs/{source_run}"
+    from tools.skill_eval_auto import report_control
     return api.publish(plan, summary(plan, results, url, expires, now,
-                                     evidence_state=evidence_state), writer_run)
+                                     evidence_state=evidence_state,
+                                     execution_control=report_control(api, plan)), writer_run)
 
 
 def main():
     parser = argparse.ArgumentParser(description="Revision-bound skill PR integration")
-    parser.add_argument("mode", choices=("prepare", "authorize", "execute", "pack", "publish"))
+    parser.add_argument("mode", choices=("prepare", "authorize", "execute", "pack",
+                                        "publish", "control"))
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
     output = args.output.resolve()
@@ -733,6 +815,14 @@ def main():
     pr = int(inputs.get("pr") or event["pull_request"]["number"])
     repository = os.environ["GITHUB_REPOSITORY"]
     run_id = int(os.environ["GITHUB_RUN_ID"])
+    if inputs.get("action") == "execute":
+        raise ValueError("Legacy paid dispatch is blocked; use the audited label controller")
+    if args.mode == "control":
+        from tools.skill_eval_auto import controlled_execute
+        api = GitHub(repository, os.environ["GITHUB_TOKEN"])
+        controlled_execute(api, output, run_id=run_id,
+                           attempt=int(os.environ["GITHUB_RUN_ATTEMPT"]))
+        return
     if args.mode == "execute":
         execute(output, compare.read_json(output / "approval.json"))
         return
@@ -746,11 +836,42 @@ def main():
                         "https://github.com/" + repository + ".git", current["base"],
                         f"refs/pull/{pr}/head"], cwd=ROOT, check=True)
         version = git(ROOT, "rev-parse", "HEAD").decode().strip()
+        from tools.skill_eval_auto import CONFIG, configuration, live_label
+        config, config_blocked = None, None
+        try:
+            config = configuration(CONFIG, now=0)
+        except FileNotFoundError:
+            config_blocked = "Trusted automatic configuration is missing"
+        except (OSError, ValueError, KeyError, TypeError, ArithmeticError):
+            config_blocked = "Trusted automatic configuration is invalid or unreadable"
+        provider = config["provider"] if config else None
+        # An explicitly requested manual plan is not an automatic provider fallback.
+        if config is None and inputs.get("action") == "plan" and inputs.get("provider_config"):
+            provider = json.loads(inputs["provider_config"])
         plan = prepare(ROOT, MAPPING, {"repository": repository, "pr": pr,
-                       "version": version, **current}, output,
-                       provider=json.loads(inputs["provider_config"])
-                       if inputs.get("provider_config") else None)
+                       "version": version, **current}, output, provider=provider,
+                       planning_blocked=config_blocked if provider is None else None)
+        candidate, reason = False, (config_blocked or
+                                   "Trusted provider configuration and audited PR genesis required")
+        if config:
+            try:
+                configuration(CONFIG)
+            except (OSError, ValueError, KeyError, TypeError, ArithmeticError):
+                reason = "Trusted automatic configuration or pricing is expired or invalid"
+            else:
+                try:
+                    from tools.skill_eval_auto import eligible, ledger_store
+                    eligible(plan, config)
+                    live_label(api, plan, config)
+                    store, key = ledger_store(api, config, pr)
+                    store.read_verified(key)
+                    candidate = True
+                    reason = "Eligible; durable reservation required before execution"
+                except (ValueError, KeyError, TypeError):
+                    reason = "Blocked: label/operator, suitability, budget or audited ledger"
+        write_json(output / "control-status.json", {"eligible": candidate, "reason": reason})
         with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as handle:
+            handle.write(f"auto_candidate={str(candidate).lower()}\n")
             handle.write(f"pr={pr}\nplan_sha256={fingerprint(plan)}\n")
             handle.write("client_kind=" + (KIND if "provider_config" in plan else "codex") + "\n")
         return
@@ -766,15 +887,18 @@ def main():
         claim(plan, runs, run_id, int(os.environ["GITHUB_RUN_ATTEMPT"]))
         write_json(output / "approval.json", approval)
         return
-    if inputs.get("action") in ("execute", "publish"):
-        if inputs["action"] == "publish" and not inputs.get("source_run"):
+    if (inputs.get("action") in ("execute", "publish")
+            or os.environ.get("SKILL_EVAL_AUTO_SOURCE") == "true"):
+        if inputs.get("action") == "publish" and not inputs.get("source_run"):
             raise ValueError("Publish-only retry requires the original execution run ID")
         receipt = publish_retained(api, output, int(inputs.get("source_run") or run_id),
                                    run_id, time.time())
     else:
         now = time.time()
         url = f"https://github.com/{repository}/actions/runs/{run_id}"
-        body = summary(plan, [], url, now + RETENTION_DAYS * 86400, now)
+        from tools.skill_eval_auto import report_control
+        body = summary(plan, [], url, now + RETENTION_DAYS * 86400, now,
+                       execution_control=report_control(api, plan))
         receipt = api.publish(plan, body, run_id)
     print(receipt["html_url"])
 
