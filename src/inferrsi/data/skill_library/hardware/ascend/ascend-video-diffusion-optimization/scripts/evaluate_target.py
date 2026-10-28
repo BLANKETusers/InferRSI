@@ -74,7 +74,7 @@ def evaluate_gates(data: Any, field: str) -> list[dict[str, Any]]:
         op = gate.get("op")
         if not isinstance(name, str) or not name:
             raise ValueError(f"{field}[{index}].name must be non-empty")
-        if op not in OPS:
+        if not isinstance(op, str) or op not in OPS:
             raise ValueError(f"{field}[{index}].op must be one of {sorted(OPS)}")
         value = finite_number(gate.get("value"), f"{field}[{index}].value")
         threshold = finite_number(
@@ -101,7 +101,7 @@ def evaluate(campaign: dict[str, Any]) -> tuple[dict[str, Any], int]:
     direction = primary.get("direction")
     if not isinstance(name, str) or not name:
         raise ValueError("primary_metric.name must be non-empty")
-    if direction not in {"lower", "higher"}:
+    if not isinstance(direction, str) or direction not in {"lower", "higher"}:
         raise ValueError("primary_metric.direction must be lower or higher")
 
     target = finite_number(primary.get("target"), "primary_metric.target")
