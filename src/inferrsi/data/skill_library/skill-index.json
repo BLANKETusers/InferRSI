@@ -169,6 +169,10 @@
       "path": "methods/training-resource-budget",
       "backend": "common"
     },
+    "video-diffusion-optimization": {
+      "path": "methods/video-diffusion-optimization",
+      "backend": "common"
+    },
     "weight-loading-optimization": {
       "path": "methods/weight-loading-optimization",
       "backend": "common"
