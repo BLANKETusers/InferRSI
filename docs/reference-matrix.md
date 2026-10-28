@@ -116,6 +116,16 @@ transport, and the workload/layout/resource controls needed for a PD comparison.
 Original prefix precision, missing methodology inspection dates, mixed-source
 attribution, owner readsets and candidate/imported limits remain unchanged.
 
+### vLLM retained source responsibilities
+
+Use the existing [engine/scheduler/KV responsibility map](../src/inferrsi/data/skill_library/repositories/vllm/SKILL.md#choose-the-source-and-responsibility)
+to distinguish the `2521446ac8c92937b5a32b7dc2a84ef7fa8e99c5` engine guide
+(inspection 2026-10-14) from the `7f730b4cea9a66520a9200265928ebe016b48a39`
+admission and connector-lifetime ledgers (supplier inspection 2026-10-15).
+The existing source rows and paper inventories keep their own evidence scope;
+navigation does not repeat an upstream inspection or qualify concrete
+worker/connector conformance, cross-pin compatibility or a physical transport.
+
 ### Reviewed systems-paper mechanisms
 
 `mined` below means pack-mediated extraction into the linked candidate artifacts.

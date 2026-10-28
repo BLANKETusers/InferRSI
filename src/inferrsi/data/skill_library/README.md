@@ -121,6 +121,18 @@ guidance; it establishes no cross-pin implementation compatibility.
 | Communication / Network | [Disaggregation peer card](../knowledge_packs/peer/tensorrt_llm/cuda/llm/prefill-decode-disaggregation.json) | Consider PD with measured prefill/decode interference, compatible KV layouts and qualified NVIDIA GPU transport; include transfer, layout-conversion and queue costs, and verify backpressure, cancellation and failed-worker recovery | Host/device loading overlap and local H2D do not establish this interconnect path; diffusion-stage splitting does not inherit the autoregressive PD cost model |
 | OS / System | [Placement discipline](hardware/host/os-process-placement/SKILL.md#1-cpu-affinity-check-then-pin-then-keep-constant) | Record and control affinity, environment and device contention across matched pool comparisons | Placement methodology controls an experiment; it does not implement PD routing or OS-priority scheduling |
 
+## vLLM version and responsibility routing
+
+The existing [vLLM responsibility map](repositories/vllm/SKILL.md#choose-the-source-and-responsibility)
+separates the broad engine guide at `2521446ac8c92937b5a32b7dc2a84ef7fa8e99c5`
+(inspection 2026-10-14) from the focused
+[admission](repositories/vllm/diagnose-vllm-admission-pressure/SKILL.md) and
+[KV lifetime](repositories/vllm/audit-vllm-kv-lifetimes/SKILL.md) procedures at
+`7f730b4cea9a66520a9200265928ebe016b48a39` (supplier inspection 2026-10-15).
+Their original readsets, source notices and candidate/unverified states remain;
+this routing adds no semantic reread or compatible-stack result. Paper-era
+scheduling/placement proposals remain separate from both implementation pins.
+
 ## Engine knowledge
 
 Five repository entry skills, 15 focused sub-skills and one research router
