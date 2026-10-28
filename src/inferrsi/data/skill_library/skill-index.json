@@ -260,6 +260,10 @@
     "husky": {
       "path": "repositories/husky",
       "backend": "common"
+    },
+    "audit-recurrent-kv-finalization": {
+      "path": "repositories/vllm-rlt/audit-recurrent-kv-finalization",
+      "backend": "common"
     }
   }
 }
