@@ -26,8 +26,8 @@
   "sources": [
     {
       "type": "git",
-      "url": "https://github.com/InferMatrixLab/InferRSI/blob/3c422579dce6cadd7a53272826fe01abe3e0534d/src/inferrsi/data/skill_library/hardware/ascend/ascend-video-diffusion-optimization/SKILL.md",
-      "commit": "3c422579dce6cadd7a53272826fe01abe3e0534d",
+      "url": "https://github.com/InferMatrixLab/InferRSI/blob/18a819b88d25c1c625dd7e130548aff52bbdc8c0/src/inferrsi/data/skill_library/hardware/ascend/ascend-video-diffusion-optimization/SKILL.md",
+      "commit": "18a819b88d25c1c625dd7e130548aff52bbdc8c0",
       "paths": [
         "src/inferrsi/data/skill_library/hardware/ascend/ascend-video-diffusion-optimization/SKILL.md",
         "src/inferrsi/data/skill_library/hardware/ascend/ascend-video-diffusion-optimization/assets/campaign.template.json",
@@ -47,7 +47,7 @@
   "source_files": {
     "src/inferrsi/data/skill_library/hardware/ascend/ascend-video-diffusion-optimization/SKILL.md": "bb08bb6de8b2c818dbcbcca9da649da5d4ae99b6771aaad6eba32d5f4b25f935",
     "src/inferrsi/data/skill_library/hardware/ascend/ascend-video-diffusion-optimization/assets/campaign.template.json": "1a37f1d136612143ddab8f0cbbf424c80433b4da5312edb18d07c0b9d87ef657",
-    "src/inferrsi/data/skill_library/hardware/ascend/ascend-video-diffusion-optimization/metadata.json": "8622da20f59c40d798e57ff9e8c8dff69137854d79dd6ed883c1a5558d3d4f92",
+    "src/inferrsi/data/skill_library/hardware/ascend/ascend-video-diffusion-optimization/metadata.json": "b95968e139367403d22da885782b272b5ed3383964b58907359bac436fd66b8d",
     "src/inferrsi/data/skill_library/hardware/ascend/ascend-video-diffusion-optimization/references/field-notes-video-diffusion.md": "dadac7b23462fdc325218c72ddf8a2ac553151761a5d3e45b854b53d2c8c6908",
     "src/inferrsi/data/skill_library/hardware/ascend/ascend-video-diffusion-optimization/scripts/evaluate_target.py": "9e84df051e03d567746fd73ae7243efb2f3c5ec806fef824d3c4d42a8eb9704c",
     "src/inferrsi/data/skill_library/skill-index.json": "5c57177ec2d5cc085acbb2aecabc66bd683f636d6adfd198fdce5dffb1d5208e"
@@ -81,10 +81,11 @@
     },
     "applicability": {
       "scope": "Ascend NPU video diffusion inference and serving optimization",
-      "hardware": "Ascend NPU; procedures are hardware-agnostic apart from layout and profiler references",
+      "hardware": "Ascend NPU; the measure-change-verify workflow skeleton transfers to other accelerators, but operator, layout and profiler references are Ascend-specific",
       "prerequisites": "A reproducible benchmark, a frozen quality check, and numeric gates defined in the governing acceptance issue"
     },
     "limitations": [
+      "The workflow skeleton transfers to other accelerators (e.g. CUDA), but every operator, layout and profiler reference (TransData, FRACTAL_NZ, CANN) is Ascend-specific and must be re-derived per backend; a backend-agnostic skeleton is not yet split out.",
       "Candidate workflow guidance; not independently validated beyond the field notes.",
       "Field notes are non-reproducible as published and must not be cited as evidence.",
       "Model identifiers, campaign revisions, and numeric gates are intentionally excluded and remain issue-scoped.",
@@ -97,7 +98,7 @@
   },
   "applicability": {
     "scope": "Ascend NPU video diffusion inference and serving optimization",
-    "hardware": "Ascend NPU; procedures are hardware-agnostic apart from layout and profiler references",
+    "hardware": "Ascend NPU; the measure-change-verify workflow skeleton transfers to other accelerators, but operator, layout and profiler references are Ascend-specific",
     "prerequisites": "A reproducible benchmark, a frozen quality check, and numeric gates defined in the governing acceptance issue"
   },
   "recommendations": [
@@ -109,6 +110,7 @@
     "The imported status describes this index, not the original skill; its declared status is candidate.",
     "Reading or indexing does not authorize execution, validate efficacy, promote a candidate or grant a license.",
     "The backend categorizes the procedure's hardware dependency; it does not certify compatibility, and skills.discovery is a discovery scenario.",
+    "The workflow skeleton transfers to other accelerators (e.g. CUDA), but every operator, layout and profiler reference (TransData, FRACTAL_NZ, CANN) is Ascend-specific and must be re-derived per backend; a backend-agnostic skeleton is not yet split out.",
     "Candidate workflow guidance; not independently validated beyond the field notes.",
     "Field notes are non-reproducible as published and must not be cited as evidence.",
     "Model identifiers, campaign revisions, and numeric gates are intentionally excluded and remain issue-scoped.",
