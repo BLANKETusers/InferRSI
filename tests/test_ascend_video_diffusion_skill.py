@@ -62,6 +62,23 @@ def campaign(case):
     return data
 
 
+def malformed(case):
+    data = json.loads(TEMPLATE.read_text(encoding="utf-8"))
+    if case == "direction-not-a-string":
+        data["primary_metric"]["direction"] = []
+    elif case == "direction-object":
+        data["primary_metric"]["direction"] = {}
+    elif case == "gate-op-not-a-string":
+        data["quality_gates"][0]["op"] = {}
+    elif case == "gate-op-list":
+        data["quality_gates"][0]["op"] = []
+    elif case == "gate-name-not-a-string":
+        data["quality_gates"][0]["name"] = 7
+    elif case == "gate-threshold-not-a-number":
+        data["quality_gates"][0]["threshold"] = "0.95"
+    return data
+
+
 @pytest.mark.parametrize(
     ("case", "exit_code", "verdict"),
     [
@@ -88,3 +105,32 @@ def test_evaluator_verdict_and_exit_code(tmp_path, case, exit_code, verdict):
     assert completed.stderr == ""
     if verdict != "INVALID":
         assert "Local pre-check only" in result["scope_note"]
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "direction-not-a-string",
+        "direction-object",
+        "gate-op-not-a-string",
+        "gate-op-list",
+        "gate-name-not-a-string",
+        "gate-threshold-not-a-number",
+    ],
+)
+def test_evaluator_reports_invalid_for_malformed_field_types(tmp_path, case):
+    path = tmp_path / f"{case}.json"
+    path.write_text(json.dumps(malformed(case)), encoding="utf-8")
+
+    completed = subprocess.run(
+        [sys.executable, str(EVALUATOR), str(path)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode == 2
+    assert completed.stderr == ""
+    result = json.loads(completed.stdout)
+    assert result["verdict"] == "INVALID"
+    assert result["reasons"]
