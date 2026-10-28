@@ -57,6 +57,10 @@
       "path": "repositories/afd-plugin/audit-afd-p2p-exchanges",
       "backend": "cuda"
     },
+    "audit-fixed-workload-claim": {
+      "path": "methods/audit-fixed-workload-claim",
+      "backend": "common"
+    },
     "audit-flare-session-lifecycle": {
       "path": "repositories/flare-local-inference/audit-flare-session-lifecycle",
       "backend": "cuda"
