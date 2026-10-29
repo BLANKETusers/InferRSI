@@ -26,8 +26,8 @@
   "sources": [
     {
       "type": "git",
-      "url": "https://github.com/InferMatrixLab/InferRSI/blob/6b56d4138861703955da8d693929e67caf23bf88/src/inferrsi/data/skill_library/methods/video-diffusion-optimization/SKILL.md",
-      "commit": "6b56d4138861703955da8d693929e67caf23bf88",
+      "url": "https://github.com/InferMatrixLab/InferRSI/blob/ff46425b497e409f8ee84e44b7475500e2c2f5f8/src/inferrsi/data/skill_library/methods/video-diffusion-optimization/SKILL.md",
+      "commit": "ff46425b497e409f8ee84e44b7475500e2c2f5f8",
       "paths": [
         "src/inferrsi/data/skill_library/methods/video-diffusion-optimization/SKILL.md",
         "src/inferrsi/data/skill_library/methods/video-diffusion-optimization/assets/campaign.template.json",
