@@ -26,8 +26,8 @@
   "sources": [
     {
       "type": "git",
-      "url": "https://github.com/InferMatrixLab/InferRSI/blob/23a14cec3dc867703f735842708c6e050af1a49e/src/inferrsi/data/skill_library/methods/video-diffusion-optimization/SKILL.md",
-      "commit": "23a14cec3dc867703f735842708c6e050af1a49e",
+      "url": "https://github.com/InferMatrixLab/InferRSI/blob/6b56d4138861703955da8d693929e67caf23bf88/src/inferrsi/data/skill_library/methods/video-diffusion-optimization/SKILL.md",
+      "commit": "6b56d4138861703955da8d693929e67caf23bf88",
       "paths": [
         "src/inferrsi/data/skill_library/methods/video-diffusion-optimization/SKILL.md",
         "src/inferrsi/data/skill_library/methods/video-diffusion-optimization/assets/campaign.template.json",
@@ -48,7 +48,7 @@
     "src/inferrsi/data/skill_library/methods/video-diffusion-optimization/assets/campaign.template.json": "1a37f1d136612143ddab8f0cbbf424c80433b4da5312edb18d07c0b9d87ef657",
     "src/inferrsi/data/skill_library/methods/video-diffusion-optimization/metadata.json": "b27d69142dfea5dd2820170475c2bf6cced2d5eefd1c43b3413c41849af0fd02",
     "src/inferrsi/data/skill_library/methods/video-diffusion-optimization/scripts/evaluate_target.py": "9e84df051e03d567746fd73ae7243efb2f3c5ec806fef824d3c4d42a8eb9704c",
-    "src/inferrsi/data/skill_library/skill-index.json": "e1f4c6e60e17c3b5326b8747e853eb431a4d5b1215eac9ef1610c0fece259e8d"
+    "src/inferrsi/data/skill_library/skill-index.json": "510acd09cc96b1e074598c552b2a4eb588b9b484dda81639b98a2e1bfd0a5295"
   },
   "skill_metadata": {
     "name": "video-diffusion-optimization",
