@@ -15,7 +15,7 @@ These are knowledge abstracts (`--kind knowledge`), with namespaced package
 IDs distinct from explicitly selected `checkout_ref` skills. Ascend/CUDA
 procedures use their corresponding backend; shared methods use `common`.
 
-Source snapshot: [ff46425b497e409f8ee84e44b7475500e2c2f5f8](https://github.com/InferMatrixLab/InferRSI/tree/ff46425b497e409f8ee84e44b7475500e2c2f5f8/src/inferrsi/data/skill_library).
+Source snapshot: [e71d0631a1c0854c9616d8ef5e174d3a1e14af4b](https://github.com/InferMatrixLab/InferRSI/tree/e71d0631a1c0854c9616d8ef5e174d3a1e14af4b/src/inferrsi/data/skill_library).
 
 ```bash
 inferrsi knowledge search 'profiling' --repo-type inferrsi --limit 50
@@ -29,7 +29,7 @@ contain the current input paths and bytes (Git checkout filters are respected).
 
 ```bash
 python tools/build_skill_index.py --source-revision <committed-source-revision>
-python tools/build_skill_index.py --source-revision ff46425b497e409f8ee84e44b7475500e2c2f5f8 --check
+python tools/build_skill_index.py --source-revision e71d0631a1c0854c9616d8ef5e174d3a1e14af4b --check
 ```
 
 `--check` detects missing, stale and unexpected generated records without writing.
@@ -90,6 +90,7 @@ References and cases ship with their owning skill, not as duplicate knowledge ab
 | [kv-tier-management](common/skills/kv-tier-management.json) | common | candidate |
 | [lazy-evaluation-stream-lifetimes](common/skills/lazy-evaluation-stream-lifetimes.json) | common | candidate |
 | [lily](common/skills/lily.json) | common | candidate |
+| [local-dream](common/skills/local-dream.json) | common | candidate |
 | [mistral-rs](common/skills/mistral-rs.json) | common | candidate |
 | [mlc-llm](common/skills/mlc-llm.json) | common | candidate |
 | [mlx-swift-lm](common/skills/mlx-swift-lm.json) | common | candidate |
@@ -109,6 +110,5 @@ References and cases ship with their owning skill, not as duplicate knowledge ab
 | [torchnpu-pinned-host-memory-lifecycle](ascend/skills/torchnpu-pinned-host-memory-lifecycle.json) | ascend | candidate |
 | [training-input-pipeline](common/skills/training-input-pipeline.json) | common | candidate |
 | [training-resource-budget](common/skills/training-resource-budget.json) | common | candidate |
-| [video-diffusion-optimization](common/skills/video-diffusion-optimization.json) | common | candidate |
 | [vllm-metal](common/skills/vllm-metal.json) | common | candidate |
 | [weight-loading-optimization](common/skills/weight-loading-optimization.json) | common | candidate |
